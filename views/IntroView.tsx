@@ -4,6 +4,7 @@ import Carousel from "pinar";
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { CommonActions } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { errorMessage } from '../global/utils';
 
 interface IntroState {
   index: number;
@@ -22,6 +23,10 @@ class IntroView extends React.Component<IntroProps, IntroState> {
 
   componentDidMount() { }
   handleNextPage = async () => {
+    if (this.state.index < NUMBER_OF_SLIDES) {
+      errorMessage("Please do check all Intro");
+      return;
+    }
     try {
       await AsyncStorage.setItem("introCheck", JSON.stringify(true));
       this.props.navigation.dispatch(
@@ -59,7 +64,7 @@ class IntroView extends React.Component<IntroProps, IntroState> {
         </View>
       </Carousel>
       <View style={styles.buttonGroup}>
-        <TouchableOpacity style={styles.button} disabled={this.state.index !== NUMBER_OF_SLIDES} onPress={this.handleNextPage}>
+        <TouchableOpacity style={styles.button} onPress={this.handleNextPage}>
           <Text style={{ fontSize: height / 40, color: "black", fontWeight: "bold" }}>Next</Text>
         </TouchableOpacity>
       </View>
