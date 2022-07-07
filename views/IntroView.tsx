@@ -65,7 +65,7 @@ class IntroView extends React.Component<IntroProps, IntroState> {
       </Carousel>
       <View style={styles.buttonGroup}>
         <TouchableOpacity style={styles.button} onPress={this.handleNextPage}>
-          <Text style={{ fontSize: height / 40, color: "black", fontWeight: "bold" }}>Next</Text>
+          <Text style={{ fontSize: height / 35, color: "black", fontWeight: "bold" }}>START</Text>
         </TouchableOpacity>
       </View>
     </ScrollView>;
@@ -108,7 +108,7 @@ const styles = StyleSheet.create({
   button: {
     height: "90%",
     width: width * 0.8,
-    backgroundColor: "yellow",
+    backgroundColor: "#e6c532",
     alignItems: "center",
     justifyContent: "center",
     borderRadius: 10,
