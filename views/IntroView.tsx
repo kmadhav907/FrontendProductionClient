@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Dimensions, StyleSheet, ScrollView, Text, } from 'react-native';
+import { View, Dimensions, StyleSheet, ScrollView, Text, Image, } from 'react-native';
 import Carousel from "pinar";
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { CommonActions } from '@react-navigation/native';
@@ -13,6 +13,9 @@ interface IntroProps {
   navigation: any;
 }
 const NUMBER_OF_SLIDES = 2;
+const IntroSlide1 = require("../assets/Intro1.png");
+const IntroSlide2 = require("../assets/Intro2.png");
+const IntroSlide3 = require("../assets/Intro3.png");
 class IntroView extends React.Component<IntroProps, IntroState> {
   constructor(props: any) {
     super(props);
@@ -54,13 +57,13 @@ class IntroView extends React.Component<IntroProps, IntroState> {
         showsControls={false} showsDots={true}
       >
         <View style={styles.slide}>
-          <Text>Slide Me</Text>
+          <Image source={IntroSlide1} style={{ width: "98%", height: "98%" }} />
         </View>
         <View style={styles.slide}>
-          <Text>Slide Me</Text>
+          <Image source={IntroSlide2} style={{ width: "98%", height: "98%" }} />
         </View>
         <View style={styles.slide}>
-          <Text>Slide Me</Text>
+          <Image source={IntroSlide3} style={{ width: "98%", height: "98%" }} />
         </View>
       </Carousel>
       <View style={styles.buttonGroup}>

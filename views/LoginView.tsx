@@ -19,6 +19,8 @@ import {
 } from '../global/utils';
 import { CommonActions } from '@react-navigation/native';
 
+
+
 interface LoginViewState {
   phoneNumber: string;
   stepsForLogin: number;
