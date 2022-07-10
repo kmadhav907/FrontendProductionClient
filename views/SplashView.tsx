@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react';
-import { ActivityIndicator, Image, StyleSheet, Text, View } from 'react-native';
+import {ActivityIndicator, Image, StyleSheet, Text, View} from 'react-native';
 
 interface SplashViewState {
   animating: boolean;
@@ -19,12 +19,11 @@ class SplashView extends React.Component<SplashViewProps, SplashViewState> {
   async componentDidMount() {
     setTimeout(async () => {
       try {
-        const introCheck = await AsyncStorage.getItem("introCheck");
+        const introCheck = await AsyncStorage.getItem('introCheck');
         if (introCheck != null) {
-          this.props.navigation.navigate("LoginView")
+          this.props.navigation.navigate('LoginView');
         } else {
           this.props.navigation.navigate('IntroView');
-
         }
       } catch (error) {
         console.log(error);
@@ -36,15 +35,15 @@ class SplashView extends React.Component<SplashViewProps, SplashViewState> {
       <View style={styles.container}>
         <Image
           source={splashViewImage}
-          style={{ width: '100%', resizeMode: 'contain', height: 170 }}
+          style={{width: '100%', resizeMode: 'contain', height: 170}}
         />
         <View
           style={{
             width: '100%',
             margin: 20,
           }}>
-          <Text style={{ textAlign: 'center', fontSize: 16 }}>By</Text>
-          <Text style={{ textAlign: 'center', color: '#f9d342', fontSize: 18 }}>
+          <Text style={{textAlign: 'center', fontSize: 16}}>By</Text>
+          <Text style={{textAlign: 'center', color: '#f9d342', fontSize: 18}}>
             SIMPLE MECHANIAL SOLUTIONS
           </Text>
         </View>
