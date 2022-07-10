@@ -10,16 +10,15 @@ import {
   View,
 } from 'react-native';
 import OTPField from '../components/otpField/OtpField';
-import Geolocation from "react-native-geolocation-service";
+import Geolocation from 'react-native-geolocation-service';
 import {
   checkValidPhoneNumber,
   errorMessage,
   modifyPhoneNumber,
   requestLocationPermission,
 } from '../global/utils';
-import { CommonActions } from '@react-navigation/native';
-
-
+import {CommonActions} from '@react-navigation/native';
+import {getOTPForAuthorization} from '../apiServices/loginApis';
 
 interface LoginViewState {
   phoneNumber: string;
@@ -37,7 +36,7 @@ class LoginView extends React.Component<LoginViewProps, LoginViewState> {
       phoneNumber: '',
       stepsForLogin: 0,
       loading: false,
-      otpToVerify: "",
+      otpToVerify: '',
     };
   }
   async componentDidMount() {
@@ -45,13 +44,13 @@ class LoginView extends React.Component<LoginViewProps, LoginViewState> {
       const permissionStatus = await requestLocationPermission();
       if (permissionStatus === true) {
         Geolocation.getCurrentPosition(
-          (position) => {
-            const { latitude, longitude } = position.coords;
+          position => {
+            const {latitude, longitude} = position.coords;
           },
           (error: any) => {
             ToastAndroid.show(error.message, ToastAndroid.SHORT);
           },
-          { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+          {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
         );
       }
     } catch (err) {
@@ -59,7 +58,7 @@ class LoginView extends React.Component<LoginViewProps, LoginViewState> {
     }
   }
   handleLogin = async () => {
-    this.setState({ loading: true });
+    this.setState({loading: true});
     if (!checkValidPhoneNumber(this.state.phoneNumber)) {
       this.setState({
         loading: false,
@@ -67,13 +66,20 @@ class LoginView extends React.Component<LoginViewProps, LoginViewState> {
       errorMessage('Enter a valid Phone Number');
       return;
     }
-    const currentStep = this.state.stepsForLogin;
-    console.log(currentStep + 1)
+
     const modifiedPhoneNumber = modifyPhoneNumber(this.state.phoneNumber);
-    this.setState({
-      loading: false,
-      stepsForLogin: currentStep + 1,
-      phoneNumber: modifiedPhoneNumber,
+    getOTPForAuthorization(modifiedPhoneNumber).then((response: any) => {
+      console.log(response);
+      if (response.status === 200) {
+        this.setState({
+          loading: false,
+          stepsForLogin: this.state.stepsForLogin + 1,
+          phoneNumber: modifiedPhoneNumber,
+        });
+      } else {
+        this.setState({loading: false});
+        errorMessage('Something went bad :(');
+      }
     });
   };
   handleVerifyOtp = async () => {
@@ -82,17 +88,20 @@ class LoginView extends React.Component<LoginViewProps, LoginViewState> {
       this.props.navigation.dispatch(
         CommonActions.reset({
           index: 1,
-          routes: [{ name: "DashBoardView" }],
-        })
+          routes: [{name: 'DashBoardView'}],
+        }),
       );
+    } else {
+      errorMessage('Allow Permission status to the application');
     }
-    else {
-      errorMessage("Allow Permission status to the application")
-    }
-  }
+  };
   render() {
     if (this.state.loading === true) {
-      return <View></View>;
+      return (
+        <View>
+          <Text>Loading...</Text>
+        </View>
+      );
     }
     if (!this.state.loading && this.state.stepsForLogin === 0) {
       return (
@@ -114,7 +123,7 @@ class LoginView extends React.Component<LoginViewProps, LoginViewState> {
                 defaultValue={'+91'}
                 keyboardType="phone-pad"
                 onChangeText={(number: any) => {
-                  this.setState({ phoneNumber: number });
+                  this.setState({phoneNumber: number});
                   // console.log(this.state.phoneNumber);
                 }}
               />
@@ -122,7 +131,7 @@ class LoginView extends React.Component<LoginViewProps, LoginViewState> {
                 OTP will be sent to this Number
               </Text>
               <View style={styles.buttonContainer}>
-                <Text style={{ fontSize: 12, color: 'white', margin: 10 }}>
+                <Text style={{fontSize: 12, color: 'white', margin: 10}}>
                   By clicking you are agreeing to terms and conditon
                 </Text>
                 <TouchableOpacity
@@ -142,50 +151,65 @@ class LoginView extends React.Component<LoginViewProps, LoginViewState> {
           </View>
         </ScrollView>
       );
-    }
-    else if (!this.state.loading && this.state.stepsForLogin === 1) {
-      return <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.loginContainer}>
-          <View style={[styles.inputContainer, { width: width }]}>
-            <Text
-              style={{
-                fontSize: height / 35,
-                color: 'white',
-                fontWeight: 'bold',
-                textAlign: 'left',
-                width: '100%',
-              }}>
-              Enter the OTP
-            </Text>
-            <Text style={{ fontSize: height / 55, color: "white", textAlign: "left", width: "100%", marginTop: 10 }}>
-              We have sent the OTP to {this.state.phoneNumber}
-            </Text>
-            <OTPField
-              otp={this.state.otpToVerify}
-              setOtp={(otp: any) => {
-                this.setState({ otpToVerify: otp });
-              }}
-            />
-            <Text onPress={() => { }} style={{ marginLeft: width / 2, color: "white", marginTop: 5, fontSize: height / 50 }}>
-              Resend OTP
-            </Text>
-          </View>
-          <View style={[styles.buttonContainer, { marginTop: height / 3, }]}>
-            <TouchableOpacity
-              onPress={this.handleVerifyOtp}
-              style={styles.buttonStyle}>
+    } else if (!this.state.loading && this.state.stepsForLogin === 1) {
+      return (
+        <ScrollView contentContainerStyle={styles.container}>
+          <View style={styles.loginContainer}>
+            <View style={[styles.inputContainer, {width: width}]}>
               <Text
                 style={{
                   fontSize: height / 35,
-                  color: 'black',
+                  color: 'white',
                   fontWeight: 'bold',
+                  textAlign: 'left',
+                  width: '100%',
                 }}>
-                Verify OTP
+                Enter the OTP
               </Text>
-            </TouchableOpacity>
+              <Text
+                style={{
+                  fontSize: height / 55,
+                  color: 'white',
+                  textAlign: 'left',
+                  width: '100%',
+                  marginTop: 10,
+                }}>
+                We have sent the OTP to {this.state.phoneNumber}
+              </Text>
+              <OTPField
+                otp={this.state.otpToVerify}
+                setOtp={(otp: any) => {
+                  this.setState({otpToVerify: otp});
+                }}
+              />
+              <Text
+                onPress={() => {}}
+                style={{
+                  marginLeft: width / 2,
+                  color: 'white',
+                  marginTop: 5,
+                  fontSize: height / 50,
+                }}>
+                Resend OTP
+              </Text>
+            </View>
+            <View style={[styles.buttonContainer, {marginTop: height / 3}]}>
+              <TouchableOpacity
+                onPress={this.handleVerifyOtp}
+                style={styles.buttonStyle}>
+                <Text
+                  style={{
+                    fontSize: height / 35,
+                    color: 'black',
+                    fontWeight: 'bold',
+                  }}>
+                  Verify OTP
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      );
     }
   }
 }
@@ -252,6 +276,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
     justifyContent: 'center',
-  }
+  },
 });
 export default LoginView;
