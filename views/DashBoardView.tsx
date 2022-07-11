@@ -1,237 +1,211 @@
-import React from 'react';
-import {
-  StyleSheet,
-  Text,
-  Dimensions,
-  View,
-  TouchableOpacity,
-  Image,
-  FlatList,
-} from 'react-native';
-import {TextInput} from 'react-native-gesture-handler';
-// import {SliderBox} from 'react-native-image-slider-box';
+import React from 'react'
+import { Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import Carousel from "pinar";
+import { TextInput } from 'react-native-gesture-handler';
 
-import {SliderBox} from 'react-native-image-slider-box';
-const numColumns = 3;
-const data = [
-  {id: 'a', value: 'A'},
-  {id: 'b', value: 'B'},
-  {id: 'c', value: 'C'},
-  {id: 'd', value: 'D'},
-  {id: 'e', value: 'E'},
-  {id: 'f', value: 'F'},
-];
 
 class DashBoardView extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      images: [
-        'https://source.unsplash.com/1024x768/?nature',
-        'https://source.unsplash.com/1024x768/?water',
-        'https://source.unsplash.com/1024x768/?girl',
-        'https://source.unsplash.com/1024x768/?tree',
-      ],
-    };
-  }
-  render() {
-    return (
-      <>
-        <View style={Styles.container}>
-          <View style={Styles.showBarMain}>
-            <View style={Styles.showBarIconOuter}>
-              <Image
-                source={require('../assets/placeholder.png')}
-                style={Styles.showBarImageStyle}
-              />
-            </View>
-            <View style={Styles.showBarTextStyle}>
-              <Text>Show Bar</Text>
-            </View>
-          </View>
-          <View style={Styles.searchBarStyle}>
-            <View style={Styles.searchBarInputStyle}>
-              <TextInput
-                keyboardType="default"
-                placeholder="What Are you looking For"
-              />
-            </View>
-            <View style={Styles.searchBarSearchIconStyle}>
-              <Image
-                style={Styles.icons}
-                source={require('../assets/search.png')}
-              />
-            </View>
-          </View>
+    render(): React.ReactNode {
+        return <View style={styles.container}>
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+                <Carousel containerStyle={{ borderRadius: 10 }} contentContainerStyle={styles.carousel}
+                    width={width * 0.90} height={height * 0.30}
+                    dotsContainerStyle={{ padding: 0, margin: 0, alignItems: "center", flexDirection: "row", justifyContent: "center", marginTop: 10 }}
+                    dotStyle={{ backgroundColor: "#DEDEDE", height: 8, width: 8, borderRadius: 10, marginLeft: 5, marginRight: 5 }}
+                    activeDotStyle={{ backgroundColor: "white", height: 12, width: 12, borderRadius: 50 }}
+                    horizontal={true}
+                    // onIndexChanged={({ index, total }) => {
+                    //     console.log(index + total.toString())
+                    //     this.setState({ index: index })
 
-          <View>
-            <View style={Styles.row}>
-              <View style={Styles.column}>
-                <Image
-                  style={Styles.innerIconStyle}
-                  source={require('../assets/icons/1-01.png')}
-                />
-                <Text style={{color: 'white'}}>Cars</Text>
-              </View>
-              <View style={Styles.column}>
-                <Image
-                  style={Styles.innerIconStyle}
-                  source={require('../assets/icons/2-01.png')}
-                />
-                <Text style={{color: 'white'}}>Bike</Text>
-              </View>
-              <View style={Styles.column}>
-                <Image
-                  style={Styles.innerIconStyle}
-                  source={require('../assets/icons/3-01.png')}
-                />
-                <Text style={{color: 'white'}}>Towing</Text>
-              </View>
-            </View>
-            <View style={Styles.row}>
-              <View style={Styles.column}>
-                <Image
-                  style={Styles.innerIconStyle}
-                  source={require('../assets/icons/4-01.png')}
-                />
-                <Text style={{color: 'white'}}>Water Wash & Spa</Text>
-              </View>
-              <View style={Styles.column}>
-                <Image
-                  style={Styles.innerIconStyle}
-                  source={require('../assets/icons/5-01.png')}
-                />
-                <Text style={{color: 'white'}}>Accessories</Text>
-              </View>
-              <View style={Styles.column}>
-                <Image
-                  style={Styles.innerIconStyle}
-                  source={require('../assets/icons/6-01.png')}
-                />
-                <Text style={{color: 'white'}}>ASK Membership</Text>
-              </View>
-            </View>
-          </View>
-        </View>
-        <View style={Styles.bottomView}>
-          <TouchableOpacity>
-            <Image
-              source={require('../assets/2-01.png')}
-              style={Styles.iconStyle}
-            />
-          </TouchableOpacity>
+                    // }}
+                    showsControls={false} showsDots={true}
+                >
+                    <View style={styles.slide}>
+                        <Text>STYLE1</Text>
 
-          <TouchableOpacity>
-            <Image
-              source={require('../assets/3-01.png')}
-              style={Styles.iconStyle}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Image
-              source={require('../assets/4-01.png')}
-              style={Styles.iconStyle}
-            />
-          </TouchableOpacity>
+                    </View>
+                    <View style={styles.slide}>
+                        <Text>STYLE1</Text>
+
+                    </View>
+                    <View style={styles.slide}>
+                        <Text>STYLE1</Text>
+
+                    </View>
+                    <View style={styles.slide}>
+                        <Text>STYLE1</Text>
+                    </View>
+                </Carousel>
+                <View style={styles.placeCard}></View>
+                <View style={styles.searchSection}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Search"
+                        // onChangeText={(searchString) => {this.setState({searchString})}}
+                        underlineColorAndroid="transparent"
+                        placeholderTextColor={"#ddd"}
+                    />
+                </View>
+                <View style={styles.servicesContainer}>
+                    <View style={styles.service}>
+                        <Image
+                            style={styles.iconStyle}
+                            source={require('../assets/icons/4-01.png')}
+                        />
+                        <Text style={{ color: 'white', fontSize: 12, }}>Water Wash & Spa</Text>
+                    </View>
+                    <View style={styles.service}>
+                        <Image
+                            style={styles.iconStyle}
+                            source={require('../assets/icons/4-01.png')}
+                        />
+                        <Text style={{ color: 'white', fontSize: 12, }}>Water Wash & Spa</Text>
+                    </View>
+                    <View style={styles.service}>
+                        <Image
+                            style={styles.iconStyle}
+                            source={require('../assets/icons/4-01.png')}
+                        />
+                        <Text style={{ color: 'white', fontSize: 12, }}>Water Wash & Spa</Text>
+                    </View>
+                    <View style={styles.service}>
+                        <Image
+                            style={styles.iconStyle}
+                            source={require('../assets/icons/4-01.png')}
+                        />
+                        <Text style={{ color: 'white', fontSize: 12, }}>Water Wash & Spa</Text>
+                    </View>
+                    <View style={styles.service}>
+                        <Image
+                            style={styles.iconStyle}
+                            source={require('../assets/icons/4-01.png')}
+                        />
+                        <Text style={{ color: 'white', fontSize: 12, }}>Water Wash & Spa</Text>
+                    </View>
+                    <View style={styles.service}>
+                        <Image
+                            style={styles.iconStyle}
+                            source={require('../assets/icons/4-01.png')}
+                        />
+                        <Text style={{ color: 'white', fontSize: 12, }}>Water Wash & Spa</Text>
+                    </View>
+
+                </View>
+
+            </ScrollView>
+            <View style={styles.bottomView}>
+                <TouchableOpacity>
+                    <Image
+                        source={require('../assets/2-01.png')}
+                        style={styles.bottomIconStyle}
+                    />
+                </TouchableOpacity>
+
+                <TouchableOpacity>
+                    <Image
+                        source={require('../assets/3-01.png')}
+                        style={styles.bottomIconStyle}
+                    />
+                </TouchableOpacity>
+                <TouchableOpacity>
+                    <Image
+                        source={require('../assets/4-01.png')}
+                        style={styles.bottomIconStyle}
+                    />
+                </TouchableOpacity>
+            </View>
         </View>
-      </>
-    );
-  }
+    }
 }
 
-const size = Dimensions.get('window').width / numColumns;
-const height = Dimensions.get('window').height;
-const width = Dimensions.get('window').width;
+const height = Dimensions.get("window").height;
+const width = Dimensions.get("window").width;
 
-const Styles = StyleSheet.create({
-  container: {
-    backgroundColor: '#000000',
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: height,
-    width: width,
-    zIndex: 2,
-    flex: 0.94,
-    borderBottomRightRadius: 15,
-    borderBottomLeftRadius: 15,
-  },
-  iconStyle: {
-    width: 40,
-    height: 40,
-  },
-  innerIconStyle: {
-    width: 60,
-    height: 60,
-    padding: 10,
-    backgroundColor: '#353535',
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        flexDirection: "column",
+        backgroundColor: '#e6c532',
 
-  column: {
-    width: width / 3,
-    height: height / 7,
-    justifyContent: 'center',
-    alignContent: 'center',
-    alignItems: 'center',
-  },
-  searchBarStyle: {
-    backgroundColor: '#353535',
-    width: width / 1.2,
-    marginBottom: 20,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    borderRadius: 15,
-  },
-  icons: {
-    width: 30,
-    height: 30,
-  },
-  searchBarInputStyle: {},
-  searchBarSearchIconStyle: {
-    justifyContent: 'center',
-    paddingRight: 10,
-  },
-  showBarMain: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    backgroundColor: '#353535',
-    width: width / 1.2,
-    marginBottom: 20,
-    borderRadius: 15,
-  },
-  showBarIconOuter: {
-    justifyContent: 'center',
-    borderStartColor: 'red',
-    padding: 10,
-  },
-  showBarTextStyle: {
-    padding: 10,
-    width: width,
-    justifyContent: 'center',
-    textAlign: 'center',
-    alignSelf: 'center',
-  },
-
-  showBarImageStyle: {
-    width: 20,
-    height: 20,
-  },
-  bottomView: {
-    backgroundColor: '#f9d342',
-    width: '100%',
-    height: 50,
-    position: 'absolute',
-    bottom: 0,
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingTop: 7,
-    elevation: 10,
-  },
-});
-
+    },
+    scrollContainer: {
+        zIndex: 2,
+        height: height - 20,
+        width: width,
+        backgroundColor: "black",
+        borderBottomLeftRadius: 15,
+        borderBottomRightRadius: 15,
+        flexDirection: "column",
+        alignItems: "center",
+    },
+    carousel: {
+        marginTop: height * 0.05,
+    },
+    slide: {
+        height: height * 0.4,
+        width: "100%",
+        backgroundColor: "white"
+    },
+    searchSection: {
+        marginTop: 15,
+        flexDirection: 'row',
+        width: width * 0.8,
+    },
+    placeCard: {
+        marginTop: 25,
+        flexDirection: 'row',
+        width: width * 0.8,
+        backgroundColor: "#adadad",
+        height: height / 15,
+        borderRadius: 10
+    },
+    servicesContainer: {
+        alignItems: "center",
+        justifyContent: "center",
+        flexWrap: "wrap",
+        width: "100%",
+        flexDirection: "row",
+        marginTop: 25,
+    },
+    service: {
+        width: width * 0.3,
+        backgroundColor: "#343434",
+        alignItems: "center",
+        justifyContent: "center",
+        flexDirection: "column",
+        height: width * 0.3,
+        marginLeft: "2%",
+        marginTop: 10,
+        borderRadius: 10,
+    },
+    iconStyle: {
+        height: "80%",
+        width: "80%",
+    },
+    input: {
+        flex: 1,
+        paddingTop: 10,
+        paddingBottom: 10,
+        paddingLeft: 10,
+        backgroundColor: '#454545',
+        color: '#fff',
+        borderRadius: 15,
+    },
+    bottomView: {
+        backgroundColor: '#e6c532',
+        width: '100%',
+        height: 50,
+        position: 'absolute',
+        bottom: 0,
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+        paddingTop: 7,
+        elevation: 10,
+    },
+    bottomIconStyle: {
+        height: 35,
+        width: 35,
+    }
+})
 export default DashBoardView;
