@@ -9,28 +9,29 @@ import {
   View,
 } from 'react-native';
 import Carousel from 'pinar';
-import { TextInput } from 'react-native-gesture-handler';
-import { CommonActions } from '@react-navigation/native';
+import {TextInput} from 'react-native-gesture-handler';
+import {CommonActions} from '@react-navigation/native';
 
 interface DashBoardViewProps {
   navigation: any;
 }
-interface DashBoardViewState {
-
-}
-class DashBoardView extends React.Component<DashBoardViewProps, DashBoardViewState>{
+interface DashBoardViewState {}
+class DashBoardView extends React.Component<
+  DashBoardViewProps,
+  DashBoardViewState
+> {
   constructor(props: DashBoardViewProps) {
     super(props);
-    this.state = {}
+    this.state = {};
   }
   navigateToBikeRequest = () => {
     this.props.navigation.dispatch(
       CommonActions.reset({
         index: 1,
-        routes: [{ name: 'BikeRequestPage' }],
+        routes: [{name: 'BikeRequestPage'}],
       }),
     );
-  }
+  };
   render(): React.ReactNode {
     return (
       <View style={styles.container}>
@@ -44,7 +45,7 @@ class DashBoardView extends React.Component<DashBoardViewProps, DashBoardViewSta
         </View>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <Carousel
-            containerStyle={{ borderRadius: 10 }}
+            containerStyle={{borderRadius: 10}}
             contentContainerStyle={styles.carousel}
             width={width * 0.9}
             height={height * 0.3}
@@ -125,25 +126,25 @@ class DashBoardView extends React.Component<DashBoardViewProps, DashBoardViewSta
                 style={styles.iconStyle}
                 source={require('../assets/icons/1-01.png')}
               />
-              <Text style={{ color: 'white', fontSize: 12 }}>
+              <Text style={{color: 'white', fontSize: 12}}>
                 Water Wash & Spa
               </Text>
             </View>
-            <TouchableOpacity style={styles.service} onPress={this.navigateToBikeRequest}>
+            <TouchableOpacity
+              style={styles.service}
+              onPress={this.navigateToBikeRequest}>
               <Image
                 style={styles.iconStyle}
                 source={require('../assets/icons/2-01.png')}
               />
-              <Text style={{ color: 'white', fontSize: 12 }}>
-                Bike
-              </Text>
+              <Text style={{color: 'white', fontSize: 12}}>Bike</Text>
             </TouchableOpacity>
             <View style={styles.service}>
               <Image
                 style={styles.iconStyle}
                 source={require('../assets/icons/3-01.png')}
               />
-              <Text style={{ color: 'white', fontSize: 12 }}>
+              <Text style={{color: 'white', fontSize: 12}}>
                 Water Wash & Spa
               </Text>
             </View>
@@ -152,7 +153,7 @@ class DashBoardView extends React.Component<DashBoardViewProps, DashBoardViewSta
                 style={styles.iconStyle}
                 source={require('../assets/icons/4-01.png')}
               />
-              <Text style={{ color: 'white', fontSize: 12 }}>
+              <Text style={{color: 'white', fontSize: 12}}>
                 Water Wash & Spa
               </Text>
             </View>
@@ -161,7 +162,7 @@ class DashBoardView extends React.Component<DashBoardViewProps, DashBoardViewSta
                 style={styles.iconStyle}
                 source={require('../assets/icons/5-01.png')}
               />
-              <Text style={{ color: 'white', fontSize: 12 }}>
+              <Text style={{color: 'white', fontSize: 12}}>
                 Water Wash & Spa
               </Text>
             </View>
@@ -170,7 +171,7 @@ class DashBoardView extends React.Component<DashBoardViewProps, DashBoardViewSta
                 style={styles.iconStyle}
                 source={require('../assets/icons/6-01.png')}
               />
-              <Text style={{ color: 'white', fontSize: 12 }}>
+              <Text style={{color: 'white', fontSize: 12}}>
                 Water Wash & Spa
               </Text>
             </View>

@@ -34,8 +34,9 @@ const Navigators = () => {
           options={{headerShown: false, gestureEnabled: false}}
           component={DashBoardView}
         />
-        <Stack.Screen name="BikeRequestPage"
-          options={{ headerShown: false, gestureEnabled: false }}
+        <Stack.Screen
+          name="BikeRequestPage"
+          options={{headerShown: false, gestureEnabled: false}}
           component={BikeRequestSteps}
         />
       </Stack.Navigator>
