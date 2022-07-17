@@ -15,6 +15,14 @@ class DashBoardView extends React.Component {
   render(): React.ReactNode {
     return (
       <View style={styles.container}>
+        <View style={styles.menu}>
+          <TouchableOpacity>
+            <Image
+              source={require('../assets/icons/13-01.png')}
+              style={styles.menuIconStyle}
+            />
+          </TouchableOpacity>
+        </View>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <Carousel
             containerStyle={{borderRadius: 10}}
@@ -184,6 +192,16 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     backgroundColor: '#e6c532',
   },
+  menu: {
+    backgroundColor: 'black',
+    paddingTop: height - 750,
+    paddingLeft: width - 380,
+  },
+  menuIconStyle: {
+    width: 30,
+    height: 30,
+  },
+
   scrollContainer: {
     zIndex: 2,
     height: height - 20,
