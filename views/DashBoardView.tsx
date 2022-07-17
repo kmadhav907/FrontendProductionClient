@@ -9,15 +9,34 @@ import {
   View,
 } from 'react-native';
 import Carousel from 'pinar';
-import {TextInput} from 'react-native-gesture-handler';
+import { TextInput } from 'react-native-gesture-handler';
+import { CommonActions } from '@react-navigation/native';
 
-class DashBoardView extends React.Component {
+interface DashBoardViewProps {
+  navigation: any;
+}
+interface DashBoardViewState {
+
+}
+class DashBoardView extends React.Component<DashBoardViewProps, DashBoardViewState>{
+  constructor(props: DashBoardViewProps) {
+    super(props);
+    this.state = {}
+  }
+  navigateToBikeRequest = () => {
+    this.props.navigation.dispatch(
+      CommonActions.reset({
+        index: 1,
+        routes: [{ name: 'BikeRequestPage' }],
+      }),
+    );
+  }
   render(): React.ReactNode {
     return (
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <Carousel
-            containerStyle={{borderRadius: 10}}
+            containerStyle={{ borderRadius: 10 }}
             contentContainerStyle={styles.carousel}
             width={width * 0.9}
             height={height * 0.3}
@@ -98,25 +117,25 @@ class DashBoardView extends React.Component {
                 style={styles.iconStyle}
                 source={require('../assets/icons/1-01.png')}
               />
-              <Text style={{color: 'white', fontSize: 12}}>
+              <Text style={{ color: 'white', fontSize: 12 }}>
                 Water Wash & Spa
               </Text>
             </View>
-            <View style={styles.service}>
+            <TouchableOpacity style={styles.service} onPress={this.navigateToBikeRequest}>
               <Image
                 style={styles.iconStyle}
                 source={require('../assets/icons/2-01.png')}
               />
-              <Text style={{color: 'white', fontSize: 12}}>
-                Water Wash & Spa
+              <Text style={{ color: 'white', fontSize: 12 }}>
+                Bike
               </Text>
-            </View>
+            </TouchableOpacity>
             <View style={styles.service}>
               <Image
                 style={styles.iconStyle}
                 source={require('../assets/icons/3-01.png')}
               />
-              <Text style={{color: 'white', fontSize: 12}}>
+              <Text style={{ color: 'white', fontSize: 12 }}>
                 Water Wash & Spa
               </Text>
             </View>
@@ -125,7 +144,7 @@ class DashBoardView extends React.Component {
                 style={styles.iconStyle}
                 source={require('../assets/icons/4-01.png')}
               />
-              <Text style={{color: 'white', fontSize: 12}}>
+              <Text style={{ color: 'white', fontSize: 12 }}>
                 Water Wash & Spa
               </Text>
             </View>
@@ -134,7 +153,7 @@ class DashBoardView extends React.Component {
                 style={styles.iconStyle}
                 source={require('../assets/icons/5-01.png')}
               />
-              <Text style={{color: 'white', fontSize: 12}}>
+              <Text style={{ color: 'white', fontSize: 12 }}>
                 Water Wash & Spa
               </Text>
             </View>
@@ -143,7 +162,7 @@ class DashBoardView extends React.Component {
                 style={styles.iconStyle}
                 source={require('../assets/icons/6-01.png')}
               />
-              <Text style={{color: 'white', fontSize: 12}}>
+              <Text style={{ color: 'white', fontSize: 12 }}>
                 Water Wash & Spa
               </Text>
             </View>
@@ -207,9 +226,9 @@ const styles = StyleSheet.create({
     marginTop: 25,
     flexDirection: 'row',
     width: width * 0.8,
-    backgroundColor: '#adadad',
-    height: height / 25,
+    backgroundColor: 'white',
     borderRadius: 10,
+    padding: 10,
   },
   placeCardIconView: {
     justifyContent: 'center',
