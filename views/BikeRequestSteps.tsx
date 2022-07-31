@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import { getBikeBrands, getBikeDetailsList } from '../apiServices/brandsApis';
+import { BikeBrandList } from '../global/constant';
 import { errorMessage } from '../global/utils';
 
 interface BikeRequestProps {
@@ -18,17 +19,12 @@ interface BikeRequestProps {
 interface BikeRequestState {
     currentStepsForRequest: number;
     loading: boolean;
-    bikeBrands: any[];
+    bikeBrands: any;
     searchKeyWord: string;
     bikeList: any[];
+    selectedBikeBrand: string;
 }
-const items = [
-    { id: 'Chocolate', value: 'Chocolate' },
-    { id: 'Coconut', value: 'Coconut' },
-    { id: 'Mint', value: 'Mint' },
-    { id: 'Strawberry', value: 'Strawberry' },
-    { id: 'Vanilla', value: 'Vanilla' },
-]
+
 class BikeRequestSteps extends React.Component<
     BikeRequestProps,
     BikeRequestState
@@ -37,28 +33,31 @@ class BikeRequestSteps extends React.Component<
         super(props);
         this.state = {
             currentStepsForRequest: 0,
-            bikeBrands: [],
+            bikeBrands: BikeBrandList,
             loading: false,
             searchKeyWord: '',
             bikeList: [],
+            selectedBikeBrand: ''
         };
     }
     componentDidMount = async () => {
         this.setState({ loading: true });
-        getBikeBrands()
-            .then((response: any) => {
-                console.log(response.data);
-                this.setState({ bikeBrands: response.data });
-            })
-            .catch(err => errorMessage('Something went wrong'));
+        // getBikeBrands()
+        //     .then((response: any) => {
+        //         console.log(response.data);
+        //         this.setState({ bikeBrands: response.data });
+        //     })
+        //     .catch(err => errorMessage('Something went wrong'));
         this.setState({ loading: false });
     };
     getVariousBikeDetails = async (bike: any) => {
         this.setState({ loading: true });
-        getBikeDetailsList(bike.bikebrandid).then((response: any) => {
-            console.log(response.data);
-            this.setState({ bikeList: items, currentStepsForRequest: this.state.currentStepsForRequest + 1, searchKeyWord: "" })
-        })
+        // getBikeDetailsList(bike.bikebrandid).then((response: any) => {
+        //     console.log(response.data);
+        //     this.setState({ bikeList: items, currentStepsForRequest: this.state.currentStepsForRequest + 1, searchKeyWord: "" })
+        // })
+        this.setState({ selectedBikeBrand: bike, bikeList: this.state.bikeBrands[bike], currentStepsForRequest: this.state.currentStepsForRequest + 1, searchKeyWord: "" })
+
         setTimeout(() => {
             this.setState({ loading: false })
         }, 500)
@@ -114,12 +113,12 @@ class BikeRequestSteps extends React.Component<
                                 />
                             </View>
                         </View>
-                        <View style={styles.listContainer}>
-                            {this.state.bikeBrands
+                        <ScrollView contentContainerStyle={styles.listContainer}>
+                            {Object.keys(this.state.bikeBrands)
                                 .filter((bike: any) => {
                                     if (this.state.searchKeyWord === '') return bike;
                                     else if (
-                                        bike.bikebrandname
+                                        bike
                                             .toLowerCase()
                                             .includes(this.state.searchKeyWord.toLowerCase())
                                     ) {
@@ -148,12 +147,12 @@ class BikeRequestSteps extends React.Component<
                                                     color: 'black',
                                                     fontSize: 16,
                                                 }}>
-                                                {bike.bikebrandname}
+                                                {bike}
                                             </Text>
                                         </TouchableOpacity>
                                     </View>
                                 ))}
-                        </View>
+                        </ScrollView>
                     </ScrollView>
                     <View style={styles.bottomView}>
                         <TouchableOpacity>
@@ -220,11 +219,11 @@ class BikeRequestSteps extends React.Component<
                         </View>
                     </View>
                     <View style={styles.listContainer}>
-                        {this.state.bikeList
+                        {this.state.bikeList!
                             .filter((bike: any) => {
                                 if (this.state.searchKeyWord === '') return bike;
                                 else if (
-                                    bike.id
+                                    bike
                                         .toLowerCase()
                                         .includes(this.state.searchKeyWord.toLowerCase())
                                 ) {
@@ -237,6 +236,7 @@ class BikeRequestSteps extends React.Component<
                                     <TouchableOpacity
                                         onPress={() => {
                                             // this.getVariousBikeDetails(bike);
+                                            // this.setState({ currentStepsForRequest: this.state.currentStepsForRequest + 1 })
                                         }}
                                         style={{
                                             width: width * 0.9 - 60,
@@ -253,7 +253,7 @@ class BikeRequestSteps extends React.Component<
                                                 color: 'black',
                                                 fontSize: 16,
                                             }}>
-                                            {bike.id}
+                                            {bike}
                                         </Text>
                                     </TouchableOpacity>
                                 </View>
@@ -283,7 +283,199 @@ class BikeRequestSteps extends React.Component<
                 </View>
             </View>
         }
+        if (!this.state.loading && this.state.currentStepsForRequest === 2) {
+            return <View style={styles.container}>
+                <ScrollView contentContainerStyle={styles.scrollContainer}>
+                    <View style={styles.bikeContainer}>
+                        <Image
+                            source={require('../assets/icons/2-01.png')}
+                            style={styles.bikeImageStyles}
+                        />
+                    </View>
+                    <View style={styles.placeCard}>
+                        <View style={styles.placeCardIconView}>
+                            <Image
+                                style={styles.placheCardIcon}
+                                source={require('../assets/placeholder.png')}
+                            />
+                        </View>
+                        <View style={styles.placeCardTextMain}>
+                            <Text>Name , Location</Text>
+                        </View>
+                    </View>
+                    <View style={styles.searchSection}>
+                        <View style={styles.searchSectionInputView}>
+                            <TextInput
+                                style={styles.input}
+                                placeholder="Search"
+                                // onChangeText={(searchString) => {this.setState({searchString})}}
+                                underlineColorAndroid="transparent"
+                                placeholderTextColor={'#ddd'}
+                                onChangeText={(searchString: string) => {
+                                    this.setState({ searchKeyWord: searchString });
+                                    console.log(searchString);
+                                }}
+                            />
+                        </View>
+                        <View style={styles.searchSectionIconView}>
+                            <Image
+                                style={styles.searchSectionIcon}
+                                source={require('../assets/search.png')}
+                            />
+                        </View>
+                    </View>
+                    <View style={styles.listContainer}>
+                        <View style={styles.listItem}>
+                            <TouchableOpacity onPress={() => this.setState({ currentStepsForRequest: this.state.currentStepsForRequest + 1 })} style={{
+                                width: width * 0.9,
+                                height: '100%',
+                                backgroundColor: '#E3E3E3',
+                                borderRadius: 5,
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                paddingLeft: 15,
+                                paddingTop: 5,
+                                paddingBottom: 5,
+                            }}>
+                                <Text style={{
+                                    textAlign: 'left',
+                                    color: 'black',
+                                    fontSize: 16,
+                                }}>General service</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.listItem}>
+                            <TouchableOpacity style={{
+                                width: width * 0.9,
+                                height: '100%',
+                                backgroundColor: '#E3E3E3',
+                                borderRadius: 5,
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                paddingLeft: 15,
+                                paddingTop: 5,
+                                paddingBottom: 5,
+                            }}>
+                                <Text style={{
+                                    textAlign: 'left',
+                                    color: 'black',
+                                    fontSize: 16,
+                                }}>Schedule your service</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.listItem}>
+                            <TouchableOpacity onPress={() => this.setState({ currentStepsForRequest: this.state.currentStepsForRequest + 1 })} style={{
+                                width: width * 0.9,
+                                height: '100%',
+                                backgroundColor: '#E3E3E3',
+                                borderRadius: 5,
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                paddingLeft: 15,
+                                paddingTop: 5,
+                                paddingBottom: 5,
+                            }}>
+                                <Text style={{
+                                    textAlign: 'left',
+                                    color: 'black',
+                                    fontSize: 16,
+                                }}>Emergency Towing</Text>
+                            </TouchableOpacity>
+                        </View>
+                        <View style={styles.listItem}>
+                            <TouchableOpacity onPress={() => this.setState({ currentStepsForRequest: this.state.currentStepsForRequest + 1 })} style={{
+                                width: width * 0.9,
+                                height: '100%',
+                                backgroundColor: '#E3E3E3',
+                                borderRadius: 5,
+                                flexDirection: 'row',
+                                alignItems: 'center',
+                                paddingLeft: 15,
+                                paddingTop: 5,
+                                paddingBottom: 5,
+                            }}>
+                                <Text style={{
+                                    textAlign: 'left',
+                                    color: 'black',
+                                    fontSize: 16,
+                                }}>Towing Only</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+                </ScrollView>
+                <View style={styles.bottomView}>
+                    <TouchableOpacity>
+                        <Image
+                            source={require('../assets/2-01.png')}
+                            style={styles.bottomIconStyle}
+                        />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity>
+                        <Image
+                            source={require('../assets/3-01.png')}
+                            style={styles.bottomIconStyle}
+                        />
+                    </TouchableOpacity>
+                    <TouchableOpacity>
+                        <Image
+                            source={require('../assets/4-01.png')}
+                            style={styles.bottomIconStyle}
+                        />
+                    </TouchableOpacity>
+                </View>
+            </View>
+        }
+        if (!this.state.loading && this.state.currentStepsForRequest === 3) {
+            return <View style={styles.container}>
+                <ScrollView contentContainerStyle={styles.scrollContainer}>
+                    <View style={styles.bikeContainer}>
+                        <Image
+                            source={require('../assets/icons/2-01.png')}
+                            style={styles.bikeImageStyles}
+                        />
+                    </View>
+                    <View style={styles.placeCard}>
+                        <View style={styles.placeCardIconView}>
+                            <Image
+                                style={styles.placheCardIcon}
+                                source={require('../assets/placeholder.png')}
+                            />
+                        </View>
+                        <View style={styles.placeCardTextMain}>
+                            <Text>Name , Location</Text>
+                        </View>
+                    </View>
+                    <View style={{ width: width, alignItems: "center", justifyContent: "center", flexDirection: "row", marginTop: 20 }}>
+                        <Text style={{ color: "white", fontWeight: "bold", fontSize: 20, }}>Select your requirements</Text>
+                    </View>
+                </ScrollView>
+                <View style={styles.bottomView}>
+                    <TouchableOpacity>
+                        <Image
+                            source={require('../assets/2-01.png')}
+                            style={styles.bottomIconStyle}
+                        />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity>
+                        <Image
+                            source={require('../assets/3-01.png')}
+                            style={styles.bottomIconStyle}
+                        />
+                    </TouchableOpacity>
+                    <TouchableOpacity>
+                        <Image
+                            source={require('../assets/4-01.png')}
+                            style={styles.bottomIconStyle}
+                        />
+                    </TouchableOpacity>
+                </View>
+            </View>
+        }
+
     }
+
 }
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -293,6 +485,7 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         backgroundColor: '#e6c532',
+        height: height,
     },
     scrollContainer: {
         zIndex: 2,
@@ -303,6 +496,7 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 15,
         flexDirection: 'column',
         alignItems: 'center',
+        flex: 1,
     },
     bikeContainer: {
         width: width,
@@ -364,7 +558,7 @@ const styles = StyleSheet.create({
     },
     listItem: {
         marginTop: 10,
-        padding: 5,
+        height: 30,
         width: width * 0.9,
         alignItems: 'center',
         flexDirection: 'row',
