@@ -187,6 +187,7 @@ class BikeRequestSteps extends React.Component<
     if (!this.state.loading && this.state.currentStepsForRequest === 1) {
       return (
         <View style={styles.container}>
+          //here made change this u might need to change
           <view style={styles.scrollContainer}>
             <View style={styles.bikeContainer}>
               <Image
