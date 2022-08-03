@@ -5,30 +5,88 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  ToastAndroid,
   TouchableOpacity,
   View,
 } from 'react-native';
 import Carousel from 'pinar';
-import {TextInput} from 'react-native-gesture-handler';
-import {CommonActions} from '@react-navigation/native';
+import { TextInput } from 'react-native-gesture-handler';
+import { CommonActions } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { requestLocationPermission } from '../global/utils';
+import Geolocation from "react-native-geolocation-service";
+import { saveLocation } from '../apiServices/locationApi';
 
 interface DashBoardViewProps {
   navigation: any;
 }
-interface DashBoardViewState {}
+interface DashBoardViewState {
+  latitude: number | undefined;
+  longitude: number | undefined;
+  loading: boolean;
+}
 class DashBoardView extends React.Component<
   DashBoardViewProps,
   DashBoardViewState
 > {
   constructor(props: DashBoardViewProps) {
     super(props);
-    this.state = {};
+    this.state = {
+      latitude: undefined,
+      longitude: undefined,
+      loading: false
+    };
+  }
+  componentDidMount = async () => {
+    this.setState({ loading: true })
+
+    try {
+      const permissionStatus = await requestLocationPermission();
+      if (permissionStatus === true) {
+        Geolocation.getCurrentPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            this.setState({ latitude: latitude, longitude: longitude });
+          },
+          (error) => {
+            ToastAndroid.show(error.message, ToastAndroid.SHORT);
+          },
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+        );
+        Geolocation.watchPosition(
+          (position) => {
+            const { latitude, longitude } = position.coords;
+            this.setState({ latitude: latitude, longitude: longitude }, () => {
+              this.saveLocation();
+            });
+          },
+          (error) => {
+            ToastAndroid.show(error.message, ToastAndroid.SHORT);
+          },
+          {
+            showLocationDialog: true,
+            enableHighAccuracy: true,
+          }
+        );
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+  saveLocation = async () => {
+    const userObject = await AsyncStorage.getItem("userObject");
+    const userId = JSON.parse(userObject!).userId;
+    const latitude = this.state.latitude;
+    const longitude = this.state.longitude;
+    saveLocation(userId, latitude as number, longitude as number).then((response: any) => {
+      console.log(response.data)
+    })
   }
   navigateToBikeRequest = () => {
     this.props.navigation.dispatch(
       CommonActions.reset({
         index: 1,
-        routes: [{name: 'BikeRequestPage'}],
+        routes: [{ name: 'BikeRequestPage' }],
       }),
     );
   };
@@ -45,7 +103,7 @@ class DashBoardView extends React.Component<
         </View>
         <ScrollView contentContainerStyle={styles.scrollContainer}>
           <Carousel
-            containerStyle={{borderRadius: 10}}
+            containerStyle={{ borderRadius: 10 }}
             contentContainerStyle={styles.carousel}
             width={width * 0.9}
             height={height * 0.3}
@@ -126,7 +184,7 @@ class DashBoardView extends React.Component<
                 style={styles.iconStyle}
                 source={require('../assets/icons/1-01.png')}
               />
-              <Text style={{color: 'white', fontSize: 12}}>
+              <Text style={{ color: 'white', fontSize: 12 }}>
                 Water Wash & Spa
               </Text>
             </View>
@@ -137,14 +195,14 @@ class DashBoardView extends React.Component<
                 style={styles.iconStyle}
                 source={require('../assets/icons/2-01.png')}
               />
-              <Text style={{color: 'white', fontSize: 12}}>Bike</Text>
+              <Text style={{ color: 'white', fontSize: 12 }}>Bike</Text>
             </TouchableOpacity>
             <View style={styles.service}>
               <Image
                 style={styles.iconStyle}
                 source={require('../assets/icons/3-01.png')}
               />
-              <Text style={{color: 'white', fontSize: 12}}>
+              <Text style={{ color: 'white', fontSize: 12 }}>
                 Water Wash & Spa
               </Text>
             </View>
@@ -153,7 +211,7 @@ class DashBoardView extends React.Component<
                 style={styles.iconStyle}
                 source={require('../assets/icons/4-01.png')}
               />
-              <Text style={{color: 'white', fontSize: 12}}>
+              <Text style={{ color: 'white', fontSize: 12 }}>
                 Water Wash & Spa
               </Text>
             </View>
@@ -162,7 +220,7 @@ class DashBoardView extends React.Component<
                 style={styles.iconStyle}
                 source={require('../assets/icons/5-01.png')}
               />
-              <Text style={{color: 'white', fontSize: 12}}>
+              <Text style={{ color: 'white', fontSize: 12 }}>
                 Water Wash & Spa
               </Text>
             </View>
@@ -171,7 +229,7 @@ class DashBoardView extends React.Component<
                 style={styles.iconStyle}
                 source={require('../assets/icons/6-01.png')}
               />
-              <Text style={{color: 'white', fontSize: 12}}>
+              <Text style={{ color: 'white', fontSize: 12 }}>
                 Water Wash & Spa
               </Text>
             </View>

@@ -132,23 +132,15 @@ export const BikeBrandList = {
     'KAWASAKI Ninja 1000',
     'KAWASAKI Ninja 300',
     'KAWASAKI Ninja 650',
-
     'KAWASAKI Ninja H2R',
-
     'KAWASAKI Ninja Z900',
     'KAWASAKI Ninja ZX 10 R',
-
     'KAWASAKI Ninja Z650',
     'KAWASAKI Vulcan S',
-
     'KAWASAKI Ninja ZH2',
-
     'KAWASAKI Ninja Z 650 RS',
-
     'KAWASAKI Versys 650',
-
     'KAWASAKI KX 250',
-
     'KAWASAKI Ninja W 800',
 
     'KAWASAKI Versys 1000',
@@ -158,26 +150,16 @@ export const BikeBrandList = {
   BMW: [
     'BWM G 310 R',
     'BMW G 310 GS',
-
     'BMW M 1000 RR',
-
     'BMW R 1250 GS Adventure',
-
     'BMW S 1000 R',
-
     'BMW C 400 GT',
-
     'BMW R 18',
-
     'BMW R Nine T',
-
     'BMW F 900 R',
-
     'BMW R 1250 GS',
-
     'BMW R Nine T Scrambler',
     'BMW S 1000 XR',
-
     'BMW F 900 XR',
   ],
 };
