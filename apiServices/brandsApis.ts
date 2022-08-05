@@ -10,3 +10,7 @@ export const getBikeDetailsList = async (id: string) => {
   const response = await axios.get(`${ENDPOINT}/getBikeBrandsId/${id}`);
   return response;
 };
+export const getBikeProblems = async()=> {
+  const response = await axios.get(`${ENDPOINT}/getBikePrblems`);
+  return response;
+}

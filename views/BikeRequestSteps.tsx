@@ -9,9 +9,12 @@ import {
     View,
 } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
-import { getBikeBrands, getBikeDetailsList } from '../apiServices/brandsApis';
+import Modal from 'react-native-modal/dist/modal';
+import { getBikeBrands, getBikeDetailsList, getBikeProblems } from '../apiServices/brandsApis';
 import { BikeBrandList } from '../global/constant';
 import { errorMessage } from '../global/utils';
+import SelectMultiple from "react-native-select-multiple";
+import { CommonActions } from '@react-navigation/native';
 
 interface BikeRequestProps {
     navigation: any;
@@ -23,6 +26,13 @@ interface BikeRequestState {
     searchKeyWord: string;
     bikeList: any[];
     selectedBikeBrand: string;
+    selectedBike: string;
+    showBikeRequestModal: boolean;
+    selectedRequest: string;
+    bikeProblems: any[];
+    bikeProblemsLabel: any[];
+    selectedProblems: any[];
+
 }
 
 class BikeRequestSteps extends React.Component<
@@ -32,12 +42,18 @@ class BikeRequestSteps extends React.Component<
     constructor(props: BikeRequestProps) {
         super(props);
         this.state = {
-            currentStepsForRequest: 0,
+            currentStepsForRequest: 2,
             bikeBrands: BikeBrandList,
             loading: false,
             searchKeyWord: '',
             bikeList: [],
             selectedBikeBrand: '',
+            selectedBike: '',
+            showBikeRequestModal: false,
+            selectedRequest: "",
+            bikeProblems: [],
+            bikeProblemsLabel: [],
+            selectedProblems: [],
         };
     }
     componentDidMount = async () => {
@@ -67,6 +83,28 @@ class BikeRequestSteps extends React.Component<
             this.setState({ loading: false });
         }, 500);
     };
+    handleConfirmation = async () => {
+        getBikeProblems().then((response: any) => {
+            const bikeProblems = response.data;
+            const bikeProblemsLabel = response.data!.map((item: any) => {
+                return { value: item.problemname, label: item.problemname }
+            })
+            console.log(bikeProblemsLabel)
+            this.setState({ bikeProblems: bikeProblems, currentStepsForRequest: this.state.currentStepsForRequest + 1, bikeProblemsLabel: bikeProblemsLabel })
+        }).catch(error => errorMessage("Something went wrong"))
+    }
+    onSelectedItemsChange = (selectedItems: any) => {
+        console.log(selectedItems);
+        this.setState({ selectedProblems: selectedItems });
+    };
+    navigateToMapHandler = () => {
+        this.props.navigation.dispatch(
+            CommonActions.reset({
+                index: 1,
+                routes: [{ name: 'MapView' }],
+            }),
+        );
+    }
     render() {
         if (this.state.loading) {
             return (
@@ -245,7 +283,7 @@ class BikeRequestSteps extends React.Component<
                                         <TouchableOpacity
                                             onPress={() => {
                                                 // this.getVariousBikeDetails(bike);
-                                                // this.setState({ currentStepsForRequest: this.state.currentStepsForRequest + 1 })
+                                                this.setState({ currentStepsForRequest: this.state.currentStepsForRequest + 1, selectedBike: bike })
                                             }}
                                             style={{
                                                 width: width * 0.9 - 60,
@@ -297,6 +335,22 @@ class BikeRequestSteps extends React.Component<
         if (!this.state.loading && this.state.currentStepsForRequest === 2) {
             return (
                 <View style={styles.container}>
+                    {this.state.showBikeRequestModal && <Modal isVisible={this.state.showBikeRequestModal}>
+                        <View style={{ width: width * 0.9, backgroundColor: "#FFFFFF", borderRadius: 20, marginTop: 20, paddingBottom: 20, alignItems: "center" }}>
+                            <Text style={{ fontSize: 24, lineHeight: 32, color: "black", textAlign: "center", fontWeight: "600" }}>Your Request are follows</Text>
+                            <Text style={{ fontSize: 16, lineHeight: 24, color: "black", textAlign: "left", fontWeight: "600", width: width * 0.9 - 10, paddingLeft: 10, marginTop: 10 }}>Bike Brand: {this.state.selectedBikeBrand}</Text>
+                            <Text style={{ fontSize: 16, lineHeight: 24, color: "black", textAlign: "left", fontWeight: "600", width: width * 0.9 - 10, paddingLeft: 10, marginTop: 10 }}>Bike Name: {this.state.selectedBike}</Text>
+                            <Text style={{ fontSize: 16, lineHeight: 24, color: "black", textAlign: "left", fontWeight: "600", width: width * 0.9 - 10, paddingLeft: 10, marginTop: 10 }}>Service: {this.state.selectedRequest}</Text>
+                            <View style={{ flexDirection: "row", justifyContent: "space-between", width: "90%" }}>
+                                <TouchableOpacity onPress={() => { this.setState({ currentStepsForRequest: 0, showBikeRequestModal: false }) }} style={{ backgroundColor: "#f0f70f", width: "45%", alignItems: "center", padding: 15, marginTop: 20, borderRadius: 5 }}>
+                                    <Text style={{ fontSize: 16, lineHeight: 24, fontWeight: "700", color: "black" }}>Reset</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity onPress={() => this.handleConfirmation()} style={{ backgroundColor: "#f0f70f", width: "45%", alignItems: "center", padding: 15, marginTop: 20, borderRadius: 5 }}>
+                                    <Text style={{ fontSize: 16, lineHeight: 24, fontWeight: "700", color: "black" }}>Confirm</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+                    </Modal>}
                     <ScrollView contentContainerStyle={styles.scrollContainer}>
                         <View style={styles.bikeContainer}>
                             <Image
@@ -317,17 +371,7 @@ class BikeRequestSteps extends React.Component<
                         </View>
                         <View style={styles.searchSection}>
                             <View style={styles.searchSectionInputView}>
-                                <TextInput
-                                    style={styles.input}
-                                    placeholder="Search"
-                                    // onChangeText={(searchString) => {this.setState({searchString})}}
-                                    underlineColorAndroid="transparent"
-                                    placeholderTextColor={'#ddd'}
-                                    onChangeText={(searchString: string) => {
-                                        this.setState({ searchKeyWord: searchString });
-                                        console.log(searchString);
-                                    }}
-                                />
+
                             </View>
                             <View style={styles.searchSectionIconView}>
                                 <Image
@@ -342,48 +386,45 @@ class BikeRequestSteps extends React.Component<
                                 <TouchableOpacity
                                     onPress={() =>
                                         this.setState({
-                                            currentStepsForRequest:
-                                                this.state.currentStepsForRequest + 1,
+                                            showBikeRequestModal: true,
+                                            selectedRequest: "generalService",
                                         })
                                     }
                                     style={{
-                                        width: width * 0.9,
+                                        width: width - 60,
                                         height: '100%',
-                                        backgroundColor: '#E3E3E3',
+                                        backgroundColor: '#353535',
                                         borderRadius: 5,
                                         flexDirection: 'row',
                                         alignItems: 'center',
                                         paddingLeft: 15,
-                                        paddingTop: 5,
-                                        paddingBottom: 5,
                                     }}>
                                     <Text
                                         style={{
                                             textAlign: 'left',
-                                            color: 'black',
                                             fontSize: 16,
+                                            color: "white",
                                         }}>
                                         General service
                                     </Text>
                                 </TouchableOpacity>
+
                             </View>
                             <View style={styles.listItem}>
                                 <TouchableOpacity
                                     style={{
-                                        width: width * 0.9,
+                                        width: width - 60,
                                         height: '100%',
-                                        backgroundColor: '#E3E3E3',
+                                        backgroundColor: '#353535',
                                         borderRadius: 5,
                                         flexDirection: 'row',
                                         alignItems: 'center',
                                         paddingLeft: 15,
-                                        paddingTop: 5,
-                                        paddingBottom: 5,
                                     }}>
                                     <Text
                                         style={{
                                             textAlign: 'left',
-                                            color: 'black',
+                                            color: "white",
                                             fontSize: 16,
                                         }}>
                                         Schedule your service
@@ -391,7 +432,7 @@ class BikeRequestSteps extends React.Component<
                                 </TouchableOpacity>
                             </View>
                             <View style={styles.listItem}>
-                                <TouchableOpacity
+                                {/* <TouchableOpacity
                                     onPress={() =>
                                         this.setState({
                                             currentStepsForRequest:
@@ -399,54 +440,26 @@ class BikeRequestSteps extends React.Component<
                                         })
                                     }
                                     style={{
-                                        width: width * 0.9,
+                                        width: width - 60,
                                         height: '100%',
-                                        backgroundColor: '#E3E3E3',
+                                        backgroundColor: '#353535',
                                         borderRadius: 5,
                                         flexDirection: 'row',
                                         alignItems: 'center',
                                         paddingLeft: 15,
-                                        paddingTop: 5,
-                                        paddingBottom: 5,
                                     }}>
                                     <Text
                                         style={{
                                             textAlign: 'left',
-                                            color: 'black',
+                                            color: "white",
                                             fontSize: 16,
                                         }}>
                                         Emergency Towing
                                     </Text>
-                                </TouchableOpacity>
+                                </TouchableOpacity> */}
                             </View>
                             <View style={styles.listItem}>
-                                <TouchableOpacity
-                                    onPress={() =>
-                                        this.setState({
-                                            currentStepsForRequest:
-                                                this.state.currentStepsForRequest + 1,
-                                        })
-                                    }
-                                    style={{
-                                        width: width * 0.9,
-                                        height: '100%',
-                                        backgroundColor: '#E3E3E3',
-                                        borderRadius: 5,
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        paddingLeft: 15,
-                                        paddingTop: 5,
-                                        paddingBottom: 5,
-                                    }}>
-                                    <Text
-                                        style={{
-                                            textAlign: 'left',
-                                            color: 'black',
-                                            fontSize: 16,
-                                        }}>
-                                        Towing Only
-                                    </Text>
-                                </TouchableOpacity>
+
                             </View>
                         </View>
                     </ScrollView>
@@ -471,13 +484,13 @@ class BikeRequestSteps extends React.Component<
                             />
                         </TouchableOpacity>
                     </View>
-                </View>
+                </View >
             );
         }
         if (!this.state.loading && this.state.currentStepsForRequest === 3) {
             return (
                 <View style={styles.container}>
-                    <ScrollView contentContainerStyle={styles.scrollContainer}>
+                    <View style={styles.scrollContainer}>
                         <View style={styles.bikeContainer}>
                             <Image
                                 source={require('../assets/icons/2-01.png')}
@@ -507,7 +520,29 @@ class BikeRequestSteps extends React.Component<
                                 Select your requirements
                             </Text>
                         </View>
-                    </ScrollView>
+                        <View style={{ width: width * 0.95, flexDirection: "row", height: height / 2.5, marginTop: 20 }}>
+                            <SelectMultiple
+                                items={this.state.bikeProblemsLabel}
+                                itemTextColor="#000"
+                                selectedItems={
+                                    this.state.selectedProblems &&
+                                    this.state.selectedProblems
+                                }
+                                onSelectionsChange={this.onSelectedItemsChange}
+                            />
+                        </View>
+                        <View style={{ width: width, marginTop: 20, justifyContent: "center", alignItems: "center" }}>
+                            <TouchableOpacity onPress={this.navigateToMapHandler} style={{ width: width * 0.6, padding: 8, backgroundColor: "#f0f70f" }}>
+                                <Text style={{
+                                    textAlign: 'center',
+                                    color: "black",
+                                    fontSize: 16,
+                                    fontWeight: "700",
+                                    borderRadius: 10
+                                }}>Confirm</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
                     <View style={styles.bottomView}>
                         <TouchableOpacity>
                             <Image
