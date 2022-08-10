@@ -1,10 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react'
 import { Dimensions, Text, ToastAndroid, View } from 'react-native'
-import MapView, { Marker } from 'react-native-maps';
 import { saveLocation } from '../apiServices/locationApi';
 import { requestLocationPermission } from '../global/utils';
 import Geolocation from "react-native-geolocation-service";
+import MapView from '../components/Maps/Map';
 
 const height = Dimensions.get("window").height;
 const width = Dimensions.get("window").width;
@@ -70,9 +70,7 @@ class RequestMapView extends React.Component<{}, RequestMapViewState>{
             console.log(response.data)
         })
     }
-    onMapLayout = () => {
-        this.setState({ isMapLoaded: true });
-    };
+
     render() {
         if (this.state.loading) {
             return <View style={{ height: height, width: width, backgroundColor: "yellow" }}>
@@ -80,23 +78,7 @@ class RequestMapView extends React.Component<{}, RequestMapViewState>{
             </View>
         }
         return <View style={{ height: height, width: width, backgroundColor: "yellow" }}>
-            {<MapView
-                style={{ height: "100%", width: "100%" }}
-                zoomEnabled={true}
-                onMapReady={this.onMapLayout}
-                zoomControlEnabled={false}
-                initialRegion={{
-                    latitude: 28.579660,
-                    longitude: 77.321110,
-                    latitudeDelta: 0.0922,
-                    longitudeDelta: 0.0421,
-                }}>
-
-                <Marker
-                    coordinate={{ latitude: 28.579660, longitude: 77.321110 }}
-
-                />
-            </MapView>}
+            <MapView latitude={this.state.latitude as number} longitude={this.state.longitude as number} />
         </View>
     }
 }

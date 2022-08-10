@@ -13,8 +13,9 @@ import Modal from 'react-native-modal/dist/modal';
 import { getBikeBrands, getBikeDetailsList, getBikeProblems } from '../apiServices/brandsApis';
 import { BikeBrandList } from '../global/constant';
 import { errorMessage } from '../global/utils';
-import SelectMultiple from "react-native-select-multiple";
+
 import { CommonActions } from '@react-navigation/native';
+import BouncyCheckbox from 'react-native-bouncy-checkbox';
 
 interface BikeRequestProps {
     navigation: any;
@@ -32,6 +33,7 @@ interface BikeRequestState {
     bikeProblems: any[];
     bikeProblemsLabel: any[];
     selectedProblems: any[];
+    showBikeProblemsModal: boolean;
 
 }
 
@@ -42,7 +44,7 @@ class BikeRequestSteps extends React.Component<
     constructor(props: BikeRequestProps) {
         super(props);
         this.state = {
-            currentStepsForRequest: 2,
+            currentStepsForRequest: 0,
             bikeBrands: BikeBrandList,
             loading: false,
             searchKeyWord: '',
@@ -54,6 +56,7 @@ class BikeRequestSteps extends React.Component<
             bikeProblems: [],
             bikeProblemsLabel: [],
             selectedProblems: [],
+            showBikeProblemsModal: false
         };
     }
     componentDidMount = async () => {
@@ -93,10 +96,18 @@ class BikeRequestSteps extends React.Component<
             this.setState({ bikeProblems: bikeProblems, currentStepsForRequest: this.state.currentStepsForRequest + 1, bikeProblemsLabel: bikeProblemsLabel })
         }).catch(error => errorMessage("Something went wrong"))
     }
-    onSelectedItemsChange = (selectedItems: any) => {
-        console.log(selectedItems);
-        this.setState({ selectedProblems: selectedItems });
+    onSelectedItemsChange = (selectedItems: boolean, item: string) => {
+        let newSelectedProblems = this.state.selectedProblems;
+        if (selectedItems === true) {
+            newSelectedProblems = newSelectedProblems.concat(item);
+            this.setState({ selectedProblems: newSelectedProblems }, () => console.log(this.state.selectedProblems))
+        }
+        else {
+            newSelectedProblems.splice(newSelectedProblems.indexOf(item), 1)
+            this.setState({ selectedProblems: newSelectedProblems }, () => console.log(this.state.selectedProblems))
+        }
     };
+
     navigateToMapHandler = () => {
         this.props.navigation.dispatch(
             CommonActions.reset({
@@ -520,25 +531,34 @@ class BikeRequestSteps extends React.Component<
                                 Select your requirements
                             </Text>
                         </View>
-                        <View style={{ width: width * 0.95, flexDirection: "row", height: height / 2.5, marginTop: 20 }}>
-                            <SelectMultiple
-                                items={this.state.bikeProblemsLabel}
-                                itemTextColor="#000"
-                                selectedItems={
-                                    this.state.selectedProblems &&
-                                    this.state.selectedProblems
-                                }
-                                onSelectionsChange={this.onSelectedItemsChange}
-                            />
-                        </View>
+                        <ScrollView style={{ width: width, flexDirection: "column", height: height / 2.5, marginTop: 20 }}>
+                            {this.state.bikeProblemsLabel!.map((item: any, index: number) => {
+                                return <BouncyCheckbox key={index}
+                                    style={{ marginTop: 10, marginLeft: width * 0.05, backgroundColor: "#353535", padding: 5, borderRadius: 4, width: width * 0.9, alignItems: "center", paddingLeft: 10 }}
+                                    isChecked={this.state.selectedProblems.indexOf(item.value) !== -1 ? true : false}
+                                    text={item.label}
+                                    fillColor="#D35C13"
+                                    textStyle={{
+                                        textDecorationLine: "none",
+                                        color: "#fff"
+                                    }}
+                                    onPress={(selected: boolean) => this.onSelectedItemsChange(selected, item.value)}
+
+
+                                />
+                            })}
+                        </ScrollView>
                         <View style={{ width: width, marginTop: 20, justifyContent: "center", alignItems: "center" }}>
-                            <TouchableOpacity onPress={this.navigateToMapHandler} style={{ width: width * 0.6, padding: 8, backgroundColor: "#f0f70f" }}>
+                            <TouchableOpacity onPress={() => {
+                                this.state.selectedProblems.length === 0 ? errorMessage("Select the problems you are facing") :
+                                    this.setState({ showBikeProblemsModal: true })
+                            }} style={{ width: width * 0.6, padding: 8, backgroundColor: "#f0f70f", borderRadius: 5 }}>
                                 <Text style={{
                                     textAlign: 'center',
                                     color: "black",
                                     fontSize: 16,
                                     fontWeight: "700",
-                                    borderRadius: 10
+
                                 }}>Confirm</Text>
                             </TouchableOpacity>
                         </View>
@@ -564,6 +584,19 @@ class BikeRequestSteps extends React.Component<
                             />
                         </TouchableOpacity>
                     </View>
+                    {this.state.showBikeProblemsModal && <Modal isVisible={this.state.showBikeProblemsModal}>
+                        <View style={{ width: width * 0.9, backgroundColor: "#FFFFFF", borderRadius: 20, marginTop: 20, alignItems: "center", padding: 5, minHeight: height / 4, paddingBottom: 10 }}>
+                            <Text style={{ width: "100%", fontSize: 16, fontWeight: "600", lineHeight: 24, color: "black", textAlign: "center" }}>Your selected problems List</Text>
+                            {this.state.selectedProblems.map((item: any, index: number) => {
+                                return <View key={index} style={{ width: "100%", padding: 5, backgroundColor: "#f7e520", marginTop: 10, alignItems: "center", justifyContent: "center" }}>
+                                    <Text style={{ width: "100%", color: "black", padding: 5, fontSize: 14, fontWeight: "600" }}>{item}</Text>
+                                </View>
+                            })}
+                            <TouchableOpacity style={{ backgroundColor: "#f7e520", padding: 10, width: width * 0.6, marginTop: 30 }}>
+                                <Text style={{ width: "100%", fontSize: 16, fontWeight: "600", lineHeight: 24, color: "black", textAlign: "center" }} onPress={this.navigateToMapHandler}>Confirm</Text>
+                            </TouchableOpacity>
+                        </View>
+                    </Modal>}
                 </View>
             );
         }
