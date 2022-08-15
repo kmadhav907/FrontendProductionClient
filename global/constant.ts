@@ -163,3 +163,6 @@ export const BikeBrandList = {
     'BMW F 900 XR',
   ],
 };
+
+
+const google_api_key = 'AIzaSyApOKL6jKHb8ZORqg9qNQnDAevkmwRjNK8';

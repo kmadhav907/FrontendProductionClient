@@ -38,6 +38,7 @@ class DashBoardView extends React.Component<
     };
   }
   componentDidMount = async () => {
+    console.log(this.props);
     this.setState({ loading: true })
 
     try {
