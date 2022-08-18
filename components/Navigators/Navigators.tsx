@@ -9,6 +9,7 @@ import LoginView from '../../views/LoginView';
 import MapView from '../../views/MapView';
 import BillingScreen from '../../views/BillingScreen';
 import SplashView from '../../views/SplashView';
+import UserScreen from '../../views/UserScree';
 
 const Navigators = () => {
   const Stack = createStackNavigator();
@@ -51,6 +52,8 @@ const Navigators = () => {
           options={{ headerShown: false, gestureEnabled: false }}
           component={BillingScreen}
         />
+        <Stack.Screen name="UserScreen" options={{ headerShown: false, gestureEnabled: false }}
+          component={UserScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

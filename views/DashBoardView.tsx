@@ -250,7 +250,7 @@ class DashBoardView extends React.Component<
               style={styles.bottomIconStyle}
             />
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => this.props.navigation.navigate("UserScreen")}>
             <Image
               source={require('../assets/4-01.png')}
               style={styles.bottomIconStyle}
