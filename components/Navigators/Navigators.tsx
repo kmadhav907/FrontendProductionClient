@@ -7,9 +7,9 @@ import DashBoardView from '../../views/DashBoardView';
 import IntroView from '../../views/IntroView';
 import LoginView from '../../views/LoginView';
 import MapView from '../../views/MapView';
-import BillingScreen from '../../views/BillingScreen';
+import BillingScreen from '../../views/TowRequestSteps';
 import SplashView from '../../views/SplashView';
-import UserScreen from '../../views/UserScree';
+import UserScreen from '../../views/UserScreen';
 
 const Navigators = () => {
   const Stack = createStackNavigator();
@@ -48,7 +48,7 @@ const Navigators = () => {
           component={MapView}
         />
         <Stack.Screen
-          name="BillingScreen"
+          name="TowRequest"
           options={{ headerShown: false, gestureEnabled: false }}
           component={BillingScreen}
         />

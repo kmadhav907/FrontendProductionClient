@@ -82,6 +82,17 @@ class UserScreen extends React.Component<UserScreenProps, UserScreenState> {
                             placeholderTextColor="#ABABAB"
                             autoCapitalize="none" />
                     </View>
+                    <TouchableOpacity style={{ backgroundColor: "#e6c532", padding: 15, paddingTop: 5, paddingBottom: 5, alignSelf: "flex-start", marginTop: 15, borderRadius: 5, marginLeft: 5 }}>
+                        <Text style={{ color: "black", fontSize: 14, fontWeight: "500" }}>Save</Text>
+                    </TouchableOpacity>
+                    <View style={{ width: width * 0.9, marginTop: 15, backgroundColor: "#353535", minHeight: 50, borderRadius: 5, flexDirection: "column", paddingBottom: 10, alignItems: "center" }}>
+                        <Text style={{ textAlign: "center", fontWeight: "500", fontSize: 18, color: "white" }}>Your Vehicles</Text>
+                        <View style={{ backgroundColor: "white", padding: 2.5, borderRadius: 5, marginTop: 5, width: "95%" }}>
+                            <Text style={{ color: "black", fontSize: 16, fontWeight: "600", textAlign: "center" }}>
+                                Vitara Brezza
+                            </Text>
+                        </View>
+                    </View>
                 </View>
             </ScrollView>
             <View style={styles.bottomView}>

@@ -90,6 +90,7 @@ class BikeRequestSteps extends React.Component<
     }, 500);
   };
   handleConfirmation = async () => {
+    this.setState({ loading: true })
     getBikeProblems()
       .then((response: any) => {
         const bikeProblems = response.data;
@@ -104,6 +105,7 @@ class BikeRequestSteps extends React.Component<
         });
       })
       .catch(error => errorMessage('Something went wrong'));
+    this.setState({ loading: false })
   };
   onSelectedItemsChange = (selectedItems: boolean, item: string) => {
     let newSelectedProblems = this.state.selectedProblems;
@@ -362,7 +364,7 @@ class BikeRequestSteps extends React.Component<
     if (!this.state.loading && this.state.currentStepsForRequest === 2) {
       return (
         <View style={styles.container}>
-          {this.state.showBikeRequestModal && (
+          {/* {this.state.showBikeRequestModal && (
             <Modal isVisible={this.state.showBikeRequestModal}>
               <View
                 style={{
@@ -476,7 +478,7 @@ class BikeRequestSteps extends React.Component<
                 </View>
               </View>
             </Modal>
-          )}
+          )} */}
           <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.bikeContainer}>
               <Image
@@ -510,9 +512,8 @@ class BikeRequestSteps extends React.Component<
                 <TouchableOpacity
                   onPress={() =>
                     this.setState({
-                      showBikeRequestModal: true,
-                      selectedRequest: 'generalService',
-                    })
+                      selectedRequest: 'General Service',
+                    }, () => this.handleConfirmation())
                   }
                   style={{
                     width: width - 60,
@@ -554,34 +555,6 @@ class BikeRequestSteps extends React.Component<
                   </Text>
                 </TouchableOpacity>
               </View>
-              <View style={styles.listItem}>
-                {/* <TouchableOpacity
-                                    onPress={() =>
-                                        this.setState({
-                                            currentStepsForRequest:
-                                                this.state.currentStepsForRequest + 1,
-                                        })
-                                    }
-                                    style={{
-                                        width: width - 60,
-                                        height: '100%',
-                                        backgroundColor: '#353535',
-                                        borderRadius: 5,
-                                        flexDirection: 'row',
-                                        alignItems: 'center',
-                                        paddingLeft: 15,
-                                    }}>
-                                    <Text
-                                        style={{
-                                            textAlign: 'left',
-                                            color: "white",
-                                            fontSize: 16,
-                                        }}>
-                                        Emergency Towing
-                                    </Text>
-                                </TouchableOpacity> */}
-              </View>
-              <View style={styles.listItem}></View>
             </View>
           </ScrollView>
           <View style={styles.bottomView}>
@@ -611,85 +584,86 @@ class BikeRequestSteps extends React.Component<
     if (!this.state.loading && this.state.currentStepsForRequest === 3) {
       return (
         <View style={styles.container}>
-          <View style={styles.scrollContainer}>
-            <View style={styles.bikeContainer}>
-              <Image
-                source={require('../assets/icons/2-01.png')}
-                style={styles.bikeImageStyles}
-              />
-            </View>
-            <View style={styles.placeCard}>
-              <View style={styles.placeCardIconView}>
-                <Image
-                  style={styles.placheCardIcon}
-                  source={require('../assets/placeholder.png')}
-                />
-              </View>
-              <View style={styles.placeCardTextMain}>
-                <Text>Name , Location</Text>
-              </View>
-            </View>
+          <ScrollView style={styles.scrollContainer} contentContainerStyle={{ paddingBottom: 70 }}>
             <View
               style={{
                 width: width,
                 alignItems: 'center',
                 justifyContent: 'center',
                 flexDirection: 'row',
-                marginTop: 20,
+                marginTop: 50,
               }}>
               <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 20 }}>
                 Select your requirements
               </Text>
             </View>
-            <ScrollView
-              nestedScrollEnabled={true}
-              contentContainerStyle={{
-                justifyContent: "center",
-                paddingBottom: 10,
-              }}
-              style={{
-                width: width,
-                flexDirection: 'column',
-                marginTop: 20,
-              }}>
-              {this.state.bikeProblemsLabel!.map((item: any, index: number) => {
-                return (
-                  <BouncyCheckbox
-                    key={index}
-                    style={{
-                      marginTop: 10,
-                      marginLeft: width * 0.05,
-                      backgroundColor: '#353535',
-                      padding: 5,
-                      borderRadius: 4,
-                      width: width * 0.9,
-                      alignItems: 'center',
-                      paddingLeft: 10,
-                    }}
-                    isChecked={
-                      this.state.selectedProblems.indexOf(item.value) !== -1
-                        ? true
-                        : false
-                    }
-                    text={item.label}
-                    fillColor="#D35C13"
-                    textStyle={{
-                      textDecorationLine: 'none',
-                      color: '#fff',
-                    }}
-                    onPress={(selected: boolean) =>
-                      this.onSelectedItemsChange(selected, item.value)
-                    }
-                  />
-                );
-              })}
-            </ScrollView>
+            <View style={{ width: width, alignItems: "center", justifyContent: "center", marginTop: 20 }}>
+              <Text style={{ fontSize: 16, color: "white", fontWeight: "500" }}>Enter your register Number</Text>
+              <TextInput style={{ backgroundColor: "white", width: width * 0.8, padding: 0, height: 45, borderRadius: 5, marginTop: 8, paddingLeft: 5 }} placeholderTextColor="#ABABAB" placeholder='KA-05-ABCD' />
+            </View>
+            <View style={{ height: height * 0.5 }}>
+              <ScrollView
+                nestedScrollEnabled={true}
+                contentContainerStyle={{
+                  justifyContent: "center",
+                  paddingBottom: 10,
+
+                }}
+                style={{
+                  width: width,
+                  flexDirection: 'column',
+                  marginTop: 20,
+                }}>
+                {this.state.bikeProblemsLabel!.map((item: any, index: number) => {
+                  return (
+                    <BouncyCheckbox
+                      key={index}
+                      style={{
+                        marginTop: 10,
+                        marginLeft: width * 0.05,
+                        backgroundColor: '#353535',
+                        padding: 5,
+                        borderRadius: 4,
+                        width: width * 0.9,
+                        alignItems: 'center',
+                        paddingLeft: 10,
+                      }}
+                      isChecked={
+                        this.state.selectedProblems.indexOf(item.value) !== -1
+                          ? true
+                          : false
+                      }
+                      text={item.label}
+                      fillColor="#D35C13"
+                      textStyle={{
+                        textDecorationLine: 'none',
+                        color: '#fff',
+                      }}
+                      onPress={(selected: boolean) =>
+                        this.onSelectedItemsChange(selected, item.value)
+                      }
+                    />
+                  );
+                })}
+              </ScrollView>
+            </View>
+            <View style={{ width: width * 0.8, alignSelf: "center", marginTop: 25, alignItems: "center" }}>
+              <TextInput
+                multiline={true}
+                numberOfLines={4}
+                style={{ width: "95%", borderRadius: 7, fontSize: 15, color: "black", paddingLeft: 5, backgroundColor: "white" }}
+                placeholderTextColor="#454545"
+                placeholder="Enter the detail"
+              />
+            </View>
+
             <View
               style={{
                 width: width,
                 marginTop: 20,
                 justifyContent: 'center',
                 alignItems: 'center',
+
               }}>
               <TouchableOpacity
                 onPress={() => {
@@ -714,7 +688,7 @@ class BikeRequestSteps extends React.Component<
                 </Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </ScrollView>
           <View style={styles.bottomView}>
             <TouchableOpacity>
               <Image
@@ -821,19 +795,18 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'column',
     backgroundColor: 'black',
-    height: height,
+    height: height + 2000,
     alignItems: 'center',
 
   },
   scrollContainer: {
-    zIndex: 2,
-    height: height - 20,
+
     width: width,
     backgroundColor: 'black',
     borderBottomLeftRadius: 15,
     borderBottomRightRadius: 15,
     flexDirection: 'column',
-    alignItems: 'center',
+
   },
   bikeContainer: {
     width: width,
@@ -858,6 +831,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 10,
     alignItems: 'center',
+    alignSelf: "center",
   },
   placeCardIconView: {
     justifyContent: 'center',
@@ -886,6 +860,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     borderRadius: 15,
     justifyContent: 'space-between',
+    alignSelf: "center"
   },
   searchSectionInputView: {
     justifyContent: 'center',

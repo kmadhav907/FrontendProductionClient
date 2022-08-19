@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react';
-import {Dimensions, Text, ToastAndroid, View} from 'react-native';
-import {saveLocation} from '../apiServices/locationApi';
-import {requestLocationPermission} from '../global/utils';
+import { Dimensions, Text, ToastAndroid, View } from 'react-native';
+import { saveLocation } from '../apiServices/locationApi';
+import { requestLocationPermission } from '../global/utils';
 import Geolocation from 'react-native-geolocation-service';
 import MapView from '../components/Maps/Map';
 import { CommonActions } from '@react-navigation/native';
@@ -10,7 +10,7 @@ import { CommonActions } from '@react-navigation/native';
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
 
-interface RequestMapViewProps{
+interface RequestMapViewProps {
   navigation: any;
 }
 interface RequestMapViewState {
@@ -33,24 +33,24 @@ class RequestMapView extends React.Component<
     };
   }
   componentDidMount = async () => {
-    this.setState({loading: true});
+    this.setState({ loading: true });
 
     try {
       const permissionStatus = await requestLocationPermission();
       if (permissionStatus === true) {
         Geolocation.getCurrentPosition(
           position => {
-            const {latitude, longitude} = position.coords;
-            this.setState({latitude: latitude, longitude: longitude});
+            const { latitude, longitude } = position.coords;
+            this.setState({ latitude: latitude, longitude: longitude });
           },
           error => {
             ToastAndroid.show(error.message, ToastAndroid.SHORT);
           },
-          {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
         );
         Geolocation.watchPosition(
           position => {
-            const {latitude, longitude} = position.coords;
+            const { latitude, longitude } = position.coords;
             this.setState(
               {
                 latitude: latitude,
@@ -73,7 +73,7 @@ class RequestMapView extends React.Component<
     } catch (err) {
       console.log(err);
     }
-    this.setState({loading: false});
+    this.setState({ loading: false });
   };
   saveLocation = async () => {
     const userObject = await AsyncStorage.getItem('userObject');
@@ -86,28 +86,21 @@ class RequestMapView extends React.Component<
       },
     );
   };
-  navigateToBillingHandler = () => {
-    this.props.navigation.dispatch(
-      CommonActions.reset({
-        index: 1,
-        routes: [{name: 'BillingScreen'}],
-      }),
-    );
-  };
+
   render() {
     if (this.state.loading) {
       return (
-        <View style={{height: height, width: width, backgroundColor: 'yellow'}}>
+        <View style={{ height: height, width: width, backgroundColor: 'yellow' }}>
           <Text>Loading...</Text>
         </View>
       );
     }
     return (
-      <View style={{height: height, width: width, backgroundColor: 'yellow'}}>
+      <View style={{ height: height, width: width, backgroundColor: 'yellow' }}>
         <MapView
           latitude={this.state.latitude as number}
           longitude={this.state.longitude as number}
-          navigate={this.navigateToBillingHandler}
+        // navigate={this.navigateToBillingHandler}
         />
       </View>
     );

@@ -1,5 +1,5 @@
-import {CommonActions} from '@react-navigation/native';
-import React, {useRef} from 'react';
+import { CommonActions } from '@react-navigation/native';
+import React, { useRef } from 'react';
 import {
   Button,
   Dimensions,
@@ -9,13 +9,13 @@ import {
   View,
   TouchableOpacity,
 } from 'react-native';
-import MapView, {Marker, AnimatedRegion} from 'react-native-maps';
+import MapView, { Marker, AnimatedRegion } from 'react-native-maps';
 import MapViewDirections from 'react-native-maps-directions';
 
 interface MapProps {
   latitude: number;
   longitude: number;
-  navigate: any;
+
 }
 interface MapState {
   isMapLoaded: boolean;
@@ -52,7 +52,7 @@ class Map extends React.Component<MapProps, MapState> {
         {this.props.latitude && this.props.longitude && (
           <>
             <TouchableOpacity
-              onPress={this.props.navigate}
+              // onPress={this.props.navigate}
               style={{
                 padding: 8,
                 backgroundColor: '#f0f70f',

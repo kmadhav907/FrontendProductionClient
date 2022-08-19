@@ -91,6 +91,14 @@ class DashBoardView extends React.Component<
       }),
     );
   };
+  navigateToTowRequest = () => {
+    this.props.navigation.dispatch(
+      CommonActions.reset({
+        index: 1,
+        routes: [{ name: 'TowRequest' }],
+      }),
+    );
+  };
   render(): React.ReactNode {
     return (
       <View style={styles.container}>
@@ -186,7 +194,7 @@ class DashBoardView extends React.Component<
                 source={require('../assets/icons/1-01.png')}
               />
               <Text style={{ color: 'white', fontSize: 12 }}>
-                Water Wash & Spa
+                Car
               </Text>
             </View>
             <TouchableOpacity
@@ -198,15 +206,15 @@ class DashBoardView extends React.Component<
               />
               <Text style={{ color: 'white', fontSize: 12 }}>Bike</Text>
             </TouchableOpacity>
-            <View style={styles.service}>
+            <TouchableOpacity onPress={this.navigateToTowRequest} style={styles.service}>
               <Image
                 style={styles.iconStyle}
                 source={require('../assets/icons/3-01.png')}
               />
               <Text style={{ color: 'white', fontSize: 12 }}>
-                Water Wash & Spa
+                Towing
               </Text>
-            </View>
+            </TouchableOpacity>
             <View style={styles.service}>
               <Image
                 style={styles.iconStyle}
@@ -222,7 +230,7 @@ class DashBoardView extends React.Component<
                 source={require('../assets/icons/5-01.png')}
               />
               <Text style={{ color: 'white', fontSize: 12 }}>
-                Water Wash & Spa
+                Accessories
               </Text>
             </View>
             <View style={styles.service}>
@@ -231,7 +239,7 @@ class DashBoardView extends React.Component<
                 source={require('../assets/icons/6-01.png')}
               />
               <Text style={{ color: 'white', fontSize: 12 }}>
-                Water Wash & Spa
+                Ask Membership
               </Text>
             </View>
           </View>
