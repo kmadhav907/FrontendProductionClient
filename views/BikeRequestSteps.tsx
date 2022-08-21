@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  AsyncStorage,
   Dimensions,
   Image,
   StyleSheet,
@@ -8,17 +9,18 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import {ScrollView} from 'react-native-gesture-handler';
 import Modal from 'react-native-modal/dist/modal';
 import {
   getBikeBrands,
   getBikeDetailsList,
   getBikeProblems,
+  sendNotifications,
 } from '../apiServices/brandsApis';
-import { BikeBrandList } from '../global/constant';
-import { errorMessage } from '../global/utils';
+import {BikeBrandList} from '../global/constant';
+import {errorMessage} from '../global/utils';
 
-import { CommonActions } from '@react-navigation/native';
+import {CommonActions} from '@react-navigation/native';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 
 interface BikeRequestProps {
@@ -38,6 +40,9 @@ interface BikeRequestState {
   bikeProblemsLabel: any[];
   selectedProblems: any[];
   showBikeProblemsModal: boolean;
+  mechanicStatus: string;
+  bikeRegisterationNumber: string;
+  problemDescription: string;
 }
 
 class BikeRequestSteps extends React.Component<
@@ -60,20 +65,23 @@ class BikeRequestSteps extends React.Component<
       bikeProblemsLabel: [],
       selectedProblems: [],
       showBikeProblemsModal: false,
+      mechanicStatus: '',
+      bikeRegisterationNumber: '',
+      problemDescription: '',
     };
   }
   componentDidMount = async () => {
-    this.setState({ loading: true });
+    this.setState({loading: true});
     // getBikeBrands()
     //     .then((response: any) => {
     //         console.log(response.data);
     //         this.setState({ bikeBrands: response.data });
     //     })
     //     .catch(err => errorMessage('Something went wrong'));
-    this.setState({ loading: false });
+    this.setState({loading: false});
   };
   getVariousBikeDetails = async (bike: any) => {
-    this.setState({ loading: true });
+    this.setState({loading: true});
     // getBikeDetailsList(bike.bikebrandid).then((response: any) => {
     //     console.log(response.data);
     //     this.setState({ bikeList: items, currentStepsForRequest: this.state.currentStepsForRequest + 1, searchKeyWord: "" })
@@ -86,16 +94,16 @@ class BikeRequestSteps extends React.Component<
     });
 
     setTimeout(() => {
-      this.setState({ loading: false });
+      this.setState({loading: false});
     }, 500);
   };
   handleConfirmation = async () => {
-    this.setState({ loading: true })
+    this.setState({loading: true});
     getBikeProblems()
       .then((response: any) => {
         const bikeProblems = response.data;
         const bikeProblemsLabel = response.data!.map((item: any) => {
-          return { value: item.problemname, label: item.problemname };
+          return {value: item.problemname, label: item.problemname};
         });
         console.log(bikeProblemsLabel);
         this.setState({
@@ -105,30 +113,51 @@ class BikeRequestSteps extends React.Component<
         });
       })
       .catch(error => errorMessage('Something went wrong'));
-    this.setState({ loading: false })
+    this.setState({loading: false});
   };
   onSelectedItemsChange = (selectedItems: boolean, item: string) => {
     let newSelectedProblems = this.state.selectedProblems;
     if (selectedItems === true) {
       newSelectedProblems = newSelectedProblems.concat(item);
-      this.setState({ selectedProblems: newSelectedProblems }, () =>
+      this.setState({selectedProblems: newSelectedProblems}, () =>
         console.log(this.state.selectedProblems),
       );
     } else {
       newSelectedProblems.splice(newSelectedProblems.indexOf(item), 1);
-      this.setState({ selectedProblems: newSelectedProblems }, () =>
+      this.setState({selectedProblems: newSelectedProblems}, () =>
         console.log(this.state.selectedProblems),
       );
     }
   };
 
-  navigateToMapHandler = () => {
-    this.props.navigation.dispatch(
-      CommonActions.reset({
-        index: 1,
-        routes: [{ name: 'MapView' }],
-      }),
-    );
+  onSelectedCheckBoxChange = (selectedItem: boolean , item: string) => {
+    if (selectedItem === true) {
+      this.setState({
+        mechanicStatus: item
+      })
+    }else{
+      this.setState({
+        mechanicStatus: '',
+      })
+    }
+  }
+
+  navigateToMapHandler = async() => {
+    const userObject = await AsyncStorage.getItem("userObject");
+    const userId = JSON.parse(userObject!).userId;
+    // await sendNotifications(
+    //   userId: userId,
+    //   description: this.taste.problemDescription, 
+    //   model: this.state.selectedBike, 
+    //   request: string,
+    //   registrationNo: this.state.bikeRegisterationNumber ,
+    // )
+    // this.props.navigation.dispatch(
+    //   CommonActions.reset({
+    //     index: 1,
+    //     routes: [{name: 'MapView'}],
+    //   }),
+    // );
   };
   render() {
     if (this.state.loading) {
@@ -169,7 +198,7 @@ class BikeRequestSteps extends React.Component<
                   underlineColorAndroid="transparent"
                   placeholderTextColor={'#ddd'}
                   onChangeText={(searchString: string) => {
-                    this.setState({ searchKeyWord: searchString });
+                    this.setState({searchKeyWord: searchString});
                     console.log(searchString);
                   }}
                 />
@@ -276,7 +305,7 @@ class BikeRequestSteps extends React.Component<
                 underlineColorAndroid="transparent"
                 placeholderTextColor={'#ddd'}
                 onChangeText={(searchString: string) => {
-                  this.setState({ searchKeyWord: searchString });
+                  this.setState({searchKeyWord: searchString});
                   console.log(searchString);
                 }}
               />
@@ -288,7 +317,7 @@ class BikeRequestSteps extends React.Component<
               />
             </View>
           </View>
-          <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
+          <ScrollView contentContainerStyle={{paddingBottom: 60}}>
             <View style={styles.listContainer}>
               {this.state
                 .bikeList!.filter((bike: any) => {
@@ -511,9 +540,12 @@ class BikeRequestSteps extends React.Component<
               <View style={styles.listItem}>
                 <TouchableOpacity
                   onPress={() =>
-                    this.setState({
-                      selectedRequest: 'General Service',
-                    }, () => this.handleConfirmation())
+                    this.setState(
+                      {
+                        selectedRequest: 'General Service',
+                      },
+                      () => this.handleConfirmation(),
+                    )
                   }
                   style={{
                     width: width - 60,
@@ -584,7 +616,9 @@ class BikeRequestSteps extends React.Component<
     if (!this.state.loading && this.state.currentStepsForRequest === 3) {
       return (
         <View style={styles.container}>
-          <ScrollView style={styles.scrollContainer} contentContainerStyle={{ paddingBottom: 70 }}>
+          <ScrollView
+            style={styles.scrollContainer}
+            contentContainerStyle={{paddingBottom: 70}}>
             <View
               style={{
                 width: width,
@@ -593,67 +627,161 @@ class BikeRequestSteps extends React.Component<
                 flexDirection: 'row',
                 marginTop: 50,
               }}>
-              <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 20 }}>
+              <Text style={{color: 'white', fontWeight: 'bold', fontSize: 20}}>
                 Select your requirements
               </Text>
             </View>
-            <View style={{ width: width, alignItems: "center", justifyContent: "center", marginTop: 20 }}>
-              <Text style={{ fontSize: 16, color: "white", fontWeight: "500" }}>Enter your register Number</Text>
-              <TextInput style={{ backgroundColor: "white", width: width * 0.8, padding: 0, height: 45, borderRadius: 5, marginTop: 8, paddingLeft: 5 }} placeholderTextColor="#ABABAB" placeholder='KA-05-ABCD' />
+            <View
+              style={{
+                width: width,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginTop: 20,
+              }}>
+              <Text style={{fontSize: 16, color: 'white', fontWeight: '500'}}>
+                Enter your register Number
+              </Text>
+              <TextInput
+                style={{
+                  backgroundColor: 'white',
+                  width: width * 0.8,
+                  padding: 0,
+                  height: 45,
+                  borderRadius: 5,
+                  marginTop: 8,
+                  paddingLeft: 5,
+                }}
+                placeholderTextColor="#ABABAB"
+                placeholder="KA-05-ABCD"
+                onChangeText={(regNo: string) => {
+                  this.setState({
+                    bikeRegisterationNumber: regNo
+                  })
+                }}
+              />
             </View>
-            <View style={{ height: height * 0.5 }}>
+            <View style={{height: height * 0.5}}>
               <ScrollView
                 nestedScrollEnabled={true}
                 contentContainerStyle={{
-                  justifyContent: "center",
+                  justifyContent: 'center',
                   paddingBottom: 10,
-
                 }}
                 style={{
                   width: width,
                   flexDirection: 'column',
                   marginTop: 20,
                 }}>
-                {this.state.bikeProblemsLabel!.map((item: any, index: number) => {
-                  return (
-                    <BouncyCheckbox
-                      key={index}
-                      style={{
-                        marginTop: 10,
-                        marginLeft: width * 0.05,
-                        backgroundColor: '#353535',
-                        padding: 5,
-                        borderRadius: 4,
-                        width: width * 0.9,
-                        alignItems: 'center',
-                        paddingLeft: 10,
-                      }}
-                      isChecked={
-                        this.state.selectedProblems.indexOf(item.value) !== -1
-                          ? true
-                          : false
-                      }
-                      text={item.label}
-                      fillColor="#D35C13"
-                      textStyle={{
-                        textDecorationLine: 'none',
-                        color: '#fff',
-                      }}
-                      onPress={(selected: boolean) =>
-                        this.onSelectedItemsChange(selected, item.value)
-                      }
-                    />
-                  );
-                })}
+                {this.state.bikeProblemsLabel!.map(
+                  (item: any, index: number) => {
+                    return (
+                      <BouncyCheckbox
+                        key={index}
+                        style={{
+                          marginTop: 10,
+                          marginLeft: width * 0.05,
+                          backgroundColor: '#353535',
+                          padding: 5,
+                          borderRadius: 4,
+                          width: width * 0.9,
+                          alignItems: 'center',
+                          paddingLeft: 10,
+                        }}
+                        isChecked={
+                          this.state.selectedProblems.indexOf(item.value) !== -1
+                            ? true
+                            : false
+                        }
+                        text={item.label}
+                        fillColor="#D35C13"
+                        textStyle={{
+                          textDecorationLine: 'none',
+                          color: '#fff',
+                        }}
+                        onPress={(selected: boolean) =>
+                          this.onSelectedItemsChange(selected, item.value)
+                        }
+                      />
+                    );
+                  },
+                )}
               </ScrollView>
             </View>
-            <View style={{ width: width * 0.8, alignSelf: "center", marginTop: 25, alignItems: "center" }}>
+            <View
+              style={{
+                width: width * 0.9,
+                height: height / 15,
+                alignSelf: 'center',
+                marginTop: 25,
+                alignItems: 'center',
+              }}>
               <TextInput
                 multiline={true}
                 numberOfLines={4}
-                style={{ width: "95%", borderRadius: 7, fontSize: 15, color: "black", paddingLeft: 5, backgroundColor: "white" }}
+                style={{
+                  width: '95%',
+                  borderRadius: 7,
+                  fontSize: 15,
+                  color: 'black',
+                  paddingLeft: 5,
+                  backgroundColor: 'white',
+                }}
                 placeholderTextColor="#454545"
                 placeholder="Enter the detail"
+                onChangeText={(problemDescription: string) => {
+                  this.setState({
+                    problemDescription: problemDescription
+                  })
+                }}
+              />
+            </View>
+
+            <View>
+              <BouncyCheckbox
+                style={{
+                  marginTop: 10,
+                  marginLeft: width * 0.05,
+                  backgroundColor: '#353535',
+                  padding: 5,
+                  width: width * 0.9,
+                  alignItems: 'center',
+                  paddingLeft: 10,
+                }}
+                text="I will Take To Workshop"
+                fillColor="#D35C13"
+                textStyle={{
+                  textDecorationLine: 'none',
+                  color: '#fff',
+                }}
+                isChecked={(this.state.mechanicStatus !== 'NeedMechanicToCome') ? true: false}
+                onPress = {(selected: boolean) =>
+                  this.setState({
+                    mechanicStatus: 'TravelToMechanic',
+                  })
+                }
+              />
+              <BouncyCheckbox
+                style={{
+                  marginTop: 10,
+                  marginLeft: width * 0.05,
+                  backgroundColor: '#353535',
+                  padding: 5,
+                  width: width * 0.9,
+                  alignItems: 'center',
+                  paddingLeft: 10,
+                }}
+                text="Mechanic Needs To Come To Inspect"
+                fillColor="#D35C13"
+                textStyle={{
+                  textDecorationLine: 'none',
+                  color: '#fff',
+                }}
+                isChecked={(this.state.mechanicStatus === 'TravelToMechanic') ? true: false}
+                onPress = {(selected: boolean) =>
+                  this.setState({
+                    mechanicStatus: 'NeedMechanicToCome',
+                  })
+                }
               />
             </View>
 
@@ -663,13 +791,12 @@ class BikeRequestSteps extends React.Component<
                 marginTop: 20,
                 justifyContent: 'center',
                 alignItems: 'center',
-
               }}>
               <TouchableOpacity
                 onPress={() => {
-                  this.state.selectedProblems.length === 0
+                  this.state.selectedProblems.length === 0 && this.state.problemDescription.length === 0 && this.state.bikeRegisterationNumber.length == 0
                     ? errorMessage('Select the problems you are facing')
-                    : this.setState({ showBikeProblemsModal: true });
+                    : this.setState({showBikeProblemsModal: true});
                 }}
                 style={{
                   width: width * 0.6,
@@ -797,16 +924,13 @@ const styles = StyleSheet.create({
     backgroundColor: 'black',
     height: height + 2000,
     alignItems: 'center',
-
   },
   scrollContainer: {
-
     width: width,
     backgroundColor: 'black',
     borderBottomLeftRadius: 15,
     borderBottomRightRadius: 15,
     flexDirection: 'column',
-
   },
   bikeContainer: {
     width: width,
@@ -831,7 +955,7 @@ const styles = StyleSheet.create({
     paddingTop: 10,
     paddingBottom: 10,
     alignItems: 'center',
-    alignSelf: "center",
+    alignSelf: 'center',
   },
   placeCardIconView: {
     justifyContent: 'center',
@@ -860,7 +984,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     borderRadius: 15,
     justifyContent: 'space-between',
-    alignSelf: "center"
+    alignSelf: 'center',
   },
   searchSectionInputView: {
     justifyContent: 'center',
