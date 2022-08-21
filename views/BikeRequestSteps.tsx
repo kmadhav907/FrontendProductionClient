@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-
   Dimensions,
   Image,
   StyleSheet,
@@ -9,7 +8,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { ScrollView } from 'react-native-gesture-handler';
+import {ScrollView} from 'react-native-gesture-handler';
 import Modal from 'react-native-modal/dist/modal';
 import {
   getBikeBrands,
@@ -17,16 +16,15 @@ import {
   getBikeProblems,
   sendNotifications,
 } from '../apiServices/brandsApis';
-import { BikeBrandList } from '../global/constant';
-import { errorMessage } from '../global/utils';
+import {BikeBrandList} from '../global/constant';
+import {errorMessage} from '../global/utils';
 
-import { CommonActions } from '@react-navigation/native';
+import {CommonActions} from '@react-navigation/native';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
-import { requestLocationPermission } from '../global/utils';
+import {requestLocationPermission} from '../global/utils';
 
-import { RadioGroup, RadioButton } from 'react-native-flexi-radio-button'
+import {RadioGroup, RadioButton} from 'react-native-flexi-radio-button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 
 interface BikeRequestProps {
   navigation: any;
@@ -48,6 +46,7 @@ interface BikeRequestState {
   mechanicStatus: any[];
   bikeRegisterationNumber: string;
   problemDescription: string;
+  vehicleFetchStatus: string;
 }
 
 class BikeRequestSteps extends React.Component<
@@ -70,23 +69,24 @@ class BikeRequestSteps extends React.Component<
       bikeProblemsLabel: [],
       selectedProblems: [],
       showBikeProblemsModal: false,
-      mechanicStatus: ["Should mechanic come", "I ll take the bike"],
+      mechanicStatus: ['Should mechanic come', 'I ll take the bike'],
       bikeRegisterationNumber: '',
       problemDescription: '',
+      vehicleFetchStatus: '',
     };
   }
   componentDidMount = async () => {
-    this.setState({ loading: true });
+    this.setState({loading: true});
     // getBikeBrands()
     //     .then((response: any) => {
     //         console.log(response.data);
     //         this.setState({ bikeBrands: response.data });
     //     })
     //     .catch(err => errorMessage('Something went wrong'));
-    this.setState({ loading: false });
+    this.setState({loading: false});
   };
   getVariousBikeDetails = async (bike: any) => {
-    this.setState({ loading: true });
+    this.setState({loading: true});
     // getBikeDetailsList(bike.bikebrandid).then((response: any) => {
     //     console.log(response.data);
     //     this.setState({ bikeList: items, currentStepsForRequest: this.state.currentStepsForRequest + 1, searchKeyWord: "" })
@@ -99,16 +99,16 @@ class BikeRequestSteps extends React.Component<
     });
 
     setTimeout(() => {
-      this.setState({ loading: false });
+      this.setState({loading: false});
     }, 500);
   };
   handleConfirmation = async () => {
-    this.setState({ loading: true });
+    this.setState({loading: true});
     getBikeProblems()
       .then((response: any) => {
         const bikeProblems = response.data;
         const bikeProblemsLabel = response.data!.map((item: any) => {
-          return { value: item.problemname, label: item.problemname };
+          return {value: item.problemname, label: item.problemname};
         });
         console.log(bikeProblemsLabel);
         this.setState({
@@ -118,33 +118,35 @@ class BikeRequestSteps extends React.Component<
         });
       })
       .catch(error => errorMessage('Something went wrong'));
-    this.setState({ loading: false });
+    this.setState({loading: false});
   };
   onSelectedItemsChange = (selectedItems: boolean, item: string) => {
     let newSelectedProblems = this.state.selectedProblems;
     if (selectedItems === true) {
       newSelectedProblems = newSelectedProblems.concat(item);
-      this.setState({ selectedProblems: newSelectedProblems }, () =>
+      this.setState({selectedProblems: newSelectedProblems}, () =>
         console.log(this.state.selectedProblems),
       );
     } else {
       newSelectedProblems.splice(newSelectedProblems.indexOf(item), 1);
-      this.setState({ selectedProblems: newSelectedProblems }, () =>
+      this.setState({selectedProblems: newSelectedProblems}, () =>
         console.log(this.state.selectedProblems),
       );
     }
   };
 
   navigateToMapHandler = async () => {
-    const userObject = await AsyncStorage.getItem("userObject");
+    const userObject = await AsyncStorage.getItem('userObject');
     const userId = JSON.parse(userObject!).userId;
-    // await sendNotifications(
-    //   userId: userId,
-    //   description: this.taste.problemDescription, 
-    //   model: this.state.selectedBike, 
-    //   request: string,
-    //   registrationNo: this.state.bikeRegisterationNumber ,
-    // )
+    await sendNotifications(
+      userId: userId , 
+      model: this.state.selectedBike , 
+      description: this.state.problemDescription ,
+      registrationNo: this.state.bikeRegisterationNumber , 
+      fetchStatus: this.state.vehicleFetchStatus,
+    ).then((res) => {
+      console.log(res);
+    })
     // this.props.navigation.dispatch(
     //   CommonActions.reset({
     //     index: 1,
@@ -191,7 +193,7 @@ class BikeRequestSteps extends React.Component<
                   underlineColorAndroid="transparent"
                   placeholderTextColor={'#ddd'}
                   onChangeText={(searchString: string) => {
-                    this.setState({ searchKeyWord: searchString });
+                    this.setState({searchKeyWord: searchString});
                     console.log(searchString);
                   }}
                 />
@@ -298,7 +300,7 @@ class BikeRequestSteps extends React.Component<
                 underlineColorAndroid="transparent"
                 placeholderTextColor={'#ddd'}
                 onChangeText={(searchString: string) => {
-                  this.setState({ searchKeyWord: searchString });
+                  this.setState({searchKeyWord: searchString});
                   console.log(searchString);
                 }}
               />
@@ -310,7 +312,7 @@ class BikeRequestSteps extends React.Component<
               />
             </View>
           </View>
-          <ScrollView contentContainerStyle={{ paddingBottom: 60 }}>
+          <ScrollView contentContainerStyle={{paddingBottom: 60}}>
             <View style={styles.listContainer}>
               {this.state
                 .bikeList!.filter((bike: any) => {
@@ -611,7 +613,7 @@ class BikeRequestSteps extends React.Component<
         <View style={styles.container}>
           <ScrollView
             style={styles.scrollContainer}
-            contentContainerStyle={{ paddingBottom: 70 }}>
+            contentContainerStyle={{paddingBottom: 70}}>
             <View
               style={{
                 width: width,
@@ -620,7 +622,7 @@ class BikeRequestSteps extends React.Component<
                 flexDirection: 'row',
                 marginTop: 50,
               }}>
-              <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 20 }}>
+              <Text style={{color: 'white', fontWeight: 'bold', fontSize: 20}}>
                 Select your requirements
               </Text>
             </View>
@@ -631,7 +633,7 @@ class BikeRequestSteps extends React.Component<
                 justifyContent: 'center',
                 marginTop: 20,
               }}>
-              <Text style={{ fontSize: 16, color: 'white', fontWeight: '500' }}>
+              <Text style={{fontSize: 16, color: 'white', fontWeight: '500'}}>
                 Enter your register Number
               </Text>
               <TextInput
@@ -648,12 +650,12 @@ class BikeRequestSteps extends React.Component<
                 placeholder="KA-05-ABCD"
                 onChangeText={(regNo: string) => {
                   this.setState({
-                    bikeRegisterationNumber: regNo
-                  })
+                    bikeRegisterationNumber: regNo,
+                  });
                 }}
               />
             </View>
-            <View style={{ height: height * 0.5 }}>
+            <View style={{height: height * 0.5}}>
               <ScrollView
                 nestedScrollEnabled={true}
                 contentContainerStyle={{
@@ -723,21 +725,29 @@ class BikeRequestSteps extends React.Component<
                 placeholder="Enter the detail"
                 onChangeText={(problemDescription: string) => {
                   this.setState({
-                    problemDescription: problemDescription
-                  })
+                    problemDescription: problemDescription,
+                  });
                 }}
               />
             </View>
 
-            <RadioGroup onSelect={(index: any, value: any) => { console.log(value) }}
+            <RadioGroup
+              onSelect={(index: any, value: any) => {
+                console.log(value);
+                this.setState({
+                  vehicleFetchStatus: value,
+                })
+              }}
               color="orange">
               {this.state.mechanicStatus.map((item: any, index: number) => {
-                return <RadioButton
-                  value={item}
-                  color="orange"
-                >
-                  <Text style={{ color: "white", fontSize: 16, fontWeight: "700" }}>{item}</Text>
-                </RadioButton>
+                return (
+                  <RadioButton value={item} color="orange">
+                    <Text
+                      style={{color: 'white', fontSize: 16, fontWeight: '700'}}>
+                      {item}
+                    </Text>
+                  </RadioButton>
+                );
               })}
               {/* <BouncyCheckbox
                 style={{
@@ -796,9 +806,11 @@ class BikeRequestSteps extends React.Component<
               }}>
               <TouchableOpacity
                 onPress={() => {
-                  this.state.selectedProblems.length === 0 && this.state.problemDescription.length === 0 && this.state.bikeRegisterationNumber.length == 0
+                  this.state.selectedProblems.length === 0 &&
+                  this.state.problemDescription.length === 0 &&
+                  this.state.bikeRegisterationNumber.length == 0
                     ? errorMessage('Select the problems you are facing')
-                    : this.setState({ showBikeProblemsModal: true });
+                    : this.setState({showBikeProblemsModal: true});
                 }}
                 style={{
                   width: width * 0.6,
@@ -1042,3 +1054,4 @@ const styles = StyleSheet.create({
   },
 });
 export default BikeRequestSteps;
+

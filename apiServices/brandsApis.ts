@@ -10,28 +10,26 @@ export const getBikeDetailsList = async (id: string) => {
   const response = await axios.get(`${ENDPOINT}/getBikeBrandsId/${id}`);
   return response;
 };
-export const getBikeProblems = async()=> {
+export const getBikeProblems = async () => {
   const response = await axios.get(`${ENDPOINT}/getBikePrblems`);
   return response;
-}
+};
 
-
-export const sendNotifications = async(
+export const sendNotifications = async (
   userId: string,
-  description: string , 
-  model: string , 
-  request: string,
-  registrationNo: string ,
+  description: string,
+  model: string,
+  fetchStatus: string,
+  registrationNo: string,
 ) => {
-
   const data = JSON.stringify({
-    description:  description, 
-    model:  model, 
+    description: description,
+    model: model,
     registrationNo: registrationNo,
-    request: request,
+    fetchStatus: fetchStatus,
     userId: userId,
-  })
- 
+  });
+
   const response = await axios.post(
     `${ENDPOINT}/Confirmnotification/${userId}`,
     data,
@@ -43,4 +41,5 @@ export const sendNotifications = async(
     },
   );
   return response;
-}
+};
+
