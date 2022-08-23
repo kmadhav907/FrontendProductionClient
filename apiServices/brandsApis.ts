@@ -22,17 +22,18 @@ export const sendNotifications = async (
   fetchStatus: string,
   registrationNo: string,
 ) => {
-  const data = JSON.stringify({
-    description: description,
+  const params = JSON.stringify({
+    Desciption: description,
     model: model,
     registrationNo: registrationNo,
-    fetchStatus: fetchStatus,
-    userId: userId,
+    request: fetchStatus,
   });
 
+  console.log(params);
+  console.log(userId);
   const response = await axios.post(
     `${ENDPOINT}/Confirmnotification/${userId}`,
-    data,
+    params,
     {
       headers: {
         accept: '*/*',
@@ -42,4 +43,3 @@ export const sendNotifications = async (
   );
   return response;
 };
-

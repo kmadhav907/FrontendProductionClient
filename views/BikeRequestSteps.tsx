@@ -87,7 +87,13 @@ class BikeRequestSteps extends React.Component<
   };
   getVariousBikeDetails = async (bike: any) => {
     this.setState({loading: true});
-    // getBikeDetailsList(bike.bikebrandid).then((response: any) => {
+    getBikeDetailsList(bike.bikebrandid)
+      .then((response: any) => {
+        console.log('respon  of brand api', JSON.stringify(response));
+      })
+      .catch(err => {
+        console.log('err is get bije', err);
+      });
     //     console.log(response.data);
     //     this.setState({ bikeList: items, currentStepsForRequest: this.state.currentStepsForRequest + 1, searchKeyWord: "" })
     // })
@@ -138,21 +144,25 @@ class BikeRequestSteps extends React.Component<
   navigateToMapHandler = async () => {
     const userObject = await AsyncStorage.getItem('userObject');
     const userId = JSON.parse(userObject!).userId;
-    await sendNotifications(
-      userId: userId , 
-      model: this.state.selectedBike , 
-      description: this.state.problemDescription ,
-      registrationNo: this.state.bikeRegisterationNumber , 
-      fetchStatus: this.state.vehicleFetchStatus,
-    ).then((res) => {
-      console.log(res);
-    })
-    // this.props.navigation.dispatch(
-    //   CommonActions.reset({
-    //     index: 1,
-    //     routes: [{name: 'MapView'}],
-    //   }),
-    // );
+    sendNotifications(
+      userId,
+      this.state.problemDescription,
+      this.state.selectedBike,
+      this.state.vehicleFetchStatus,
+      this.state.bikeRegisterationNumber,
+    )
+      .then(response => {
+        console.log(JSON.stringify(response));
+        this.props.navigation.dispatch(
+          CommonActions.reset({
+            index: 1,
+            routes: [{name: 'MapView'}],
+          }),
+        );
+      })
+      .catch(err => {
+        console.log('error ins resss', err);
+      });
   };
   render() {
     if (this.state.loading) {
@@ -733,10 +743,15 @@ class BikeRequestSteps extends React.Component<
 
             <RadioGroup
               onSelect={(index: any, value: any) => {
-                console.log(value);
-                this.setState({
-                  vehicleFetchStatus: value,
-                })
+                if (value === 'I ll take the bike') {
+                  this.setState({
+                    vehicleFetchStatus: 'TravelToMechanic',
+                  });
+                } else {
+                  this.setState({
+                    vehicleFetchStatus: 'NeedMechanicToCome',
+                  });
+                }
               }}
               color="orange">
               {this.state.mechanicStatus.map((item: any, index: number) => {
@@ -1054,4 +1069,3 @@ const styles = StyleSheet.create({
   },
 });
 export default BikeRequestSteps;
-
