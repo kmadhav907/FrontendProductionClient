@@ -51,23 +51,7 @@ class Map extends React.Component<MapProps, MapState> {
         }}>
         {this.props.latitude && this.props.longitude && (
           <>
-            <TouchableOpacity
-              // onPress={this.props.navigate}
-              style={{
-                padding: 8,
-                backgroundColor: '#f0f70f',
-                borderRadius: 5,
-              }}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  color: 'black',
-                  fontSize: 16,
-                  fontWeight: '700',
-                }}>
-                Confirm
-              </Text>
-            </TouchableOpacity>
+
             <View
               style={{
                 backgroundColor: 'white',
