@@ -1,5 +1,6 @@
 import React from 'react';
 import {
+  ActivityIndicator,
   Dimensions,
   Image,
   StyleSheet,
@@ -140,10 +141,29 @@ class BikeRequestSteps extends React.Component<
       );
     }
   };
-
+  checkRegistrationNumber = (number: string) => {
+    console.log(number.length === 10 && number.toLowerCase().split("-").length - 1 === 2)
+    if (number.length === 10 && number.toLowerCase().split("-").length - 1 === 2) {
+      return true;
+    }
+    else {
+      return false;
+    }
+  }
   navigateToMapHandler = async () => {
     const userObject = await AsyncStorage.getItem('userObject');
     const userId = JSON.parse(userObject!).userId;
+    this.setState({ showBikeProblemsModal: false })
+    if (!this.state.problemDescription || !this.state.vehicleFetchStatus || !this.state.bikeRegisterationNumber) {
+      errorMessage("Fill up all the detials");
+      return;
+    }
+    if (!this.checkRegistrationNumber(this.state.bikeRegisterationNumber)) {
+      errorMessage("Registration number is not in format");
+      return;
+    }
+
+    console.log("Notification sent");
     sendNotifications(
       userId,
       this.state.problemDescription,
@@ -167,8 +187,13 @@ class BikeRequestSteps extends React.Component<
   render() {
     if (this.state.loading) {
       return (
-        <View>
-          <Text>Loading</Text>
+        <View style={{ flex: 1, backgroundColor: "black" }}>
+          <ActivityIndicator
+            animating={this.state.loading}
+            color="blue"
+            size="large"
+            style={{ height: 120, alignItems: "center" }}
+          />
         </View>
       );
     }
@@ -715,11 +740,11 @@ class BikeRequestSteps extends React.Component<
             <View
               style={{
                 width: width * 0.9,
-                height: height / 15,
                 alignSelf: 'center',
                 marginTop: 25,
                 alignItems: 'center',
               }}>
+              <Text style={{ textAlign: "left", fontSize: 16, fontWeight: "500", color: "white", width: "100%", margin: 5 }}>Describe your Problem</Text>
               <TextInput
                 multiline={true}
                 numberOfLines={4}
@@ -730,9 +755,8 @@ class BikeRequestSteps extends React.Component<
                   color: 'black',
                   paddingLeft: 5,
                   backgroundColor: 'white',
+                  textAlignVertical: 'top'
                 }}
-                placeholderTextColor="#454545"
-                placeholder="Enter the description"
                 onChangeText={(problemDescription: string) => {
                   this.setState({
                     problemDescription: problemDescription,
