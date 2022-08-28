@@ -1,21 +1,29 @@
 import React from 'react';
 import {
+  Alert,
   Dimensions,
   Image,
+  Modal,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
+  TouchableHighlight,
   TouchableOpacity,
   View,
 } from 'react-native';
-
+import BouncyCheckbox from 'react-native-bouncy-checkbox';
+import {errorMessage} from '../global/utils';
 interface BillingScreenProps {
   navigation: any;
 }
 
 interface BillingScreenState {
+  towingVehicle: string;
+  vehicleNumber: string;
+  currentStepsForRequest: number;
   loading: boolean;
+  showPLeaseFillVehicleNoModal: boolean;
 }
 
 class BillingScreen extends React.Component<
@@ -25,8 +33,19 @@ class BillingScreen extends React.Component<
   constructor(props: BillingScreenProps) {
     super(props);
     this.state = {
+      vehicleNumber: '',
+      towingVehicle: '',
+      currentStepsForRequest: 0,
       loading: false,
+      showPLeaseFillVehicleNoModal: false,
     };
+  }
+
+
+  setShowModalFalse = async() => {
+    this.setState({
+      showPLeaseFillVehicleNoModal: false,
+    })
   }
 
   render(): React.ReactNode {
@@ -37,7 +56,193 @@ class BillingScreen extends React.Component<
         </View>
       );
     }
-    if (!this.state.loading) {
+
+    if (!this.state.loading && this.state.currentStepsForRequest === 0) {
+      return (
+        <View style={styles.container}>
+          <View style={styles.menu}>
+            <TouchableOpacity>
+              <Image
+                source={require('../assets/icons/13-01.png')}
+                style={styles.menuIconStyle}
+              />
+            </TouchableOpacity>
+          </View>
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <View style={styles.vehicleSelectTextContainer}>
+              <Text style={styles.vehicleSelectText}>Towing</Text>
+            </View>
+            <View style={styles.placeCard}>
+              <View style={styles.placeCardIconView}>
+                <Image
+                  style={styles.placheCardIcon}
+                  source={require('../assets/placeholder.png')}
+                />
+              </View>
+              <View style={styles.placeCardTextMain}>
+                <Text>Name , Location</Text>
+              </View>
+            </View>
+
+            <View style={styles.selectVehicleContainer}>
+              <Text style={styles.selectVehicleText}>Select Your Vehicle</Text>
+            </View>
+
+            <View style={styles.selectVehiclButtonContainer}>
+              <TouchableOpacity
+                onPress={() => {
+                  this.setState({towingVehicle: 'CAR'});
+                }}>
+                <Text
+                  style={
+                    this.state.towingVehicle === 'CAR'
+                      ? styles.selectVehicleButtonStyleonClick
+                      : styles.selectVehicleButtonStyle
+                  }>
+                  Car
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => {
+                  this.setState({towingVehicle: 'BIKE'});
+                }}>
+                <Text
+                  style={
+                    this.state.towingVehicle === 'BIKE'
+                      ? styles.selectVehicleButtonStyleonClick
+                      : styles.selectVehicleButtonStyle
+                  }>
+                  Bike
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <View
+              style={{
+                width: width,
+                alignItems: 'center',
+                justifyContent: 'center',
+                marginTop: height / 10,
+              }}>
+              <Text
+                style={{
+                  fontSize: 20,
+                  color: 'white',
+                  fontWeight: '500',
+                  marginBottom: 10,
+                }}>
+                Enter your Vehicle Number
+              </Text>
+              <TextInput
+                style={{
+                  backgroundColor: 'white',
+                  width: width * 0.8,
+                  paddingLeft: 5,
+                  height: 45,
+                  borderRadius: 5,
+                  marginTop: 8,
+                }}
+                placeholderTextColor="#ABABAB"
+                placeholder="KA-05-ABCD"
+                onChangeText={(vehicleNo: string) => {
+                  this.setState({
+                    vehicleNumber: vehicleNo,
+                  });
+                }}
+              />
+            </View>
+            <TouchableOpacity
+              onPress={() => {
+                this.state.vehicleNumber.length !== 0 &&
+                this.state.vehicleNumber.length <= 10
+                  ? this.state.towingVehicle === 'CAR'
+                    ? this.setState({currentStepsForRequest: 2})
+                    : this.setState({currentStepsForRequest: 1})
+                  : this.setState({
+                      showPLeaseFillVehicleNoModal: true,
+                    });
+              }}
+              style={{
+                width: width * 0.3,
+                padding: 8,
+                backgroundColor: '#e6c532',
+                borderRadius: 5,
+                marginTop: height / 10,
+              }}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: 'black',
+                  fontSize: 20,
+                  fontWeight: '700',
+                }}>
+                Continue
+              </Text>
+            </TouchableOpacity>
+          </ScrollView>
+          {this.state.showPLeaseFillVehicleNoModal && (
+            <Modal isVisible={this.state.showPLeaseFillVehicleNoModal} >
+              <View
+                style={{
+                  width: width * 0.9,
+                  backgroundColor: '#FFFFFF',
+                  borderRadius: 20,
+                  marginTop: 20,
+                  alignItems: 'center',
+                  padding: 5,
+                  height: height / 4,
+                  paddingBottom: 10,
+                }}>
+                <Text>Please Fill All Details</Text>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: '#f7e520',
+                    padding: 10,
+                    width: width * 0.6,
+                    marginTop: 30,
+                  }}>
+                  <Text
+                    style={{
+                      width: '100%',
+                      fontSize: 16,
+                      fontWeight: '600',
+                      lineHeight: 24,
+                      color: 'black',
+                      textAlign: 'center',
+                    }}
+                    onPress={this.setShowModalFalse}>
+                    Ok
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </Modal>
+          )}
+          <View style={styles.bottomView}>
+            <TouchableOpacity>
+              <Image
+                source={require('../assets/2-01.png')}
+                style={styles.bottomIconStyle}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity>
+              <Image
+                source={require('../assets/3-01.png')}
+                style={styles.bottomIconStyle}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <Image
+                source={require('../assets/4-01.png')}
+                style={styles.bottomIconStyle}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+    }
+
+    if (!this.state.loading && this.state.currentStepsForRequest === 1) {
       return (
         <View style={styles.container}>
           <View style={styles.menu}>
@@ -50,8 +255,7 @@ class BillingScreen extends React.Component<
           </View>
           <ScrollView contentContainerStyle={styles.scrollContainer}>
             <View style={styles.headingContainer}>
-              <Text style={styles.headingTextTitle}>Bike Name</Text>
-              <Text style={styles.headingTextSubtitle}>Request Type</Text>
+              <Text style={styles.headingTextSubtitle}>Bike Towing</Text>
             </View>
             <View style={styles.placeCard}>
               <View style={styles.placeCardIconView}>
@@ -74,6 +278,84 @@ class BillingScreen extends React.Component<
                 keyboardType="default"
                 onChangeText={() => {}}
               />
+            </View>
+            <View style={styles.yourLocationContainer}>
+              <Text style={styles.locationHeading}>Select Your Loaction</Text>
+              <TextInput
+                style={styles.loactionInput}
+                keyboardType="default"
+                onChangeText={() => {}}
+              />
+              <Text style={styles.currentLocation}>. Current Location</Text>
+            </View>
+            <View>
+              <Text style={styles.locationHeading}>Enter Your Destination</Text>
+              <TextInput
+                style={styles.loactionInput}
+                keyboardType="default"
+                onChangeText={() => {}}
+              />
+            </View>
+            <View>
+              <Text style={styles.estimatedText}>
+                Estimated Towing Charge 300/-
+              </Text>
+            </View>
+
+            <TouchableOpacity style={styles.confirmTouchStyle}>
+              <Text style={styles.confirmButtonStyle}>Confirm</Text>
+            </TouchableOpacity>
+          </ScrollView>
+          <View style={styles.bottomView}>
+            <TouchableOpacity>
+              <Image
+                source={require('../assets/2-01.png')}
+                style={styles.bottomIconStyle}
+              />
+            </TouchableOpacity>
+
+            <TouchableOpacity>
+              <Image
+                source={require('../assets/3-01.png')}
+                style={styles.bottomIconStyle}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <Image
+                source={require('../assets/4-01.png')}
+                style={styles.bottomIconStyle}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      );
+    }
+
+    if (!this.state.loading && this.state.currentStepsForRequest === 2) {
+      return (
+        <View style={styles.container}>
+          <View style={styles.menu}>
+            <TouchableOpacity>
+              <Image
+                source={require('../assets/icons/13-01.png')}
+                style={styles.menuIconStyle}
+              />
+            </TouchableOpacity>
+          </View>
+          <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <View style={styles.headingContainer}>
+              <Text style={styles.headingTextSubtitle}>Car Towing</Text>
+            </View>
+            <View style={styles.placeCard}>
+              <View style={styles.placeCardIconView}>
+                <Image
+                  style={styles.placheCardIcon}
+                  source={require('../assets/placeholder.png')}
+                />
+              </View>
+              <View style={styles.placeCardTextMain}>
+                <Text>Name , Location</Text>
+              </View>
             </View>
             <View style={styles.yourLocationContainer}>
               <Text style={styles.locationHeading}>Select Your Loaction</Text>
@@ -157,20 +439,76 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
   },
+  vehicleSelectTextContainer: {
+    width: width,
+    backgroundColor: 'grey',
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  vehicleSelectText: {
+    fontSize: 25,
+    fontWeight: 'bold',
+    color: '#e6c532',
+    marginBottom: 10,
+  },
+
+  selectVehicleContainer: {
+    marginTop: height / 6,
+  },
+  selectVehiclButtonContainer: {
+    width: width,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingLeft: height / 8,
+    paddingRight: height / 8,
+  },
+  selectVehicleButtonStyle: {
+    width: '100%',
+    fontSize: 16,
+    backgroundColor: 'white',
+    paddingLeft: 25,
+    paddingRight: 25,
+    paddingTop: 8,
+    paddingBottom: 8,
+    borderRadius: 15,
+    lineHeight: 24,
+    color: 'black',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+
+  selectVehicleButtonStyleonClick: {
+    width: '100%',
+    fontSize: 16,
+    backgroundColor: '#e6c532',
+    paddingLeft: 25,
+    paddingRight: 25,
+    paddingTop: 8,
+    paddingBottom: 8,
+    borderRadius: 15,
+    lineHeight: 24,
+    color: 'black',
+    textAlign: 'center',
+    fontWeight: 'bold',
+  },
+
+  selectVehicleText: {
+    fontSize: 20,
+    color: 'white',
+    fontWeight: '500',
+    marginBottom: 10,
+  },
 
   headingContainer: {
     backgroundColor: 'grey',
     width: width,
-    height: height / 8.5,
     marginTop: 20,
-    alignItems: 'flex-end',
+    padding: 5,
+    alignItems: 'center',
     paddingRight: 10,
     justifyContent: 'center',
   },
-  headingTextTitle: {
-    fontSize: 25,
-    color: 'white',
-  },
+
   headingTextSubtitle: {
     fontSize: 25,
     color: '#e6c532',
