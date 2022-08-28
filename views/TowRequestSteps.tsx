@@ -357,7 +357,7 @@ class BillingScreen extends React.Component<
                 <Text>Name , Location</Text>
               </View>
             </View>
-            <View style={styles.yourLocationContainer}>
+            <View style={styles.yourLocationContainerCar}>
               <Text style={styles.locationHeading}>Select Your Loaction</Text>
               <TextInput
                 style={styles.loactionInput}
@@ -374,7 +374,7 @@ class BillingScreen extends React.Component<
                 onChangeText={() => {}}
               />
             </View>
-            <View>
+            <View style={styles.carEstimateChargeContainer}>
               <Text style={styles.estimatedText}>
                 Estimated Towing Charge 300/-
               </Text>
@@ -562,6 +562,9 @@ const styles = StyleSheet.create({
   yourLocationContainer: {
     marginTop: 20,
   },
+  yourLocationContainerCar: {
+    marginTop: height / 9,
+  },
 
   currentLocation: {
     color: '#051dfa',
@@ -585,8 +588,12 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
 
+  carEstimateChargeContainer: {
+    marginTop: height / 10,
+  },
+
   confirmTouchStyle: {
-    backgroundColor: '#f7e520',
+    backgroundColor: '#e6c532',
     padding: 10,
     width: width * 0.5,
     marginTop: 30,
