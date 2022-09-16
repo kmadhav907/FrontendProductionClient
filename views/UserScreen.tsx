@@ -1,17 +1,44 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react'
 import { ActivityIndicator, Dimensions, Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import { getUserBikeDetails, getUserProfile } from '../apiServices/userApi';
 
 interface UserScreenProps {
     navigation: any;
 }
 interface UserScreenState {
     loading: boolean;
+    username: string;
+    phoneNumber: string;
+    email: string;
+    userVehicleBike: any[];
 }
 class UserScreen extends React.Component<UserScreenProps, UserScreenState> {
     constructor(props: any) {
         super(props);
-        this.state = { loading: false }
+        this.state = { loading: false, phoneNumber: '', email: "", username: "", userVehicleBike: [] };
+        (async () => {
+            this.getProfileDetails();
+            this.getVehicleDetails();
+        })()
+    }
+    getProfileDetails = async () => {
+        const userObject = await AsyncStorage.getItem("userObject");
+        const userId = JSON.parse(userObject!).userId;
+        getUserProfile(userId).then((response: any) => {
+            const email = response.data["User Email"] === null ? "" : response.data["User Email"];
+            const username = response.data["User Name"] === null ? "" : response.data["User Name"];
+            const phoneNumber = response.data["User Mobile"];
+            this.setState({ email: email, username: username, phoneNumber: phoneNumber });
+        })
+    }
+    getVehicleDetails = async () => {
+        const userObject = await AsyncStorage.getItem("userObject");
+        const userId = JSON.parse(userObject!).userId;
+        getUserBikeDetails(userId).then((response: any) => {
+            this.setState({ userVehicleBike: response.data })
+        })
     }
     render() {
         if (this.state.loading) {
@@ -87,12 +114,9 @@ class UserScreen extends React.Component<UserScreenProps, UserScreenState> {
                     </TouchableOpacity>
                     <View style={{ width: width * 0.9, marginTop: 15, backgroundColor: "#353535", minHeight: 50, borderRadius: 5, flexDirection: "column", paddingBottom: 10, alignItems: "center" }}>
                         <Text style={{ textAlign: "center", fontWeight: "500", fontSize: 18, color: "white" }}>Your Vehicles</Text>
-                        <View style={{ backgroundColor: "white", padding: 2.5, borderRadius: 5, marginTop: 5, width: "95%" }}>
-                            <Text style={{ color: "black", fontSize: 16, fontWeight: "600", textAlign: "center" }}>
-                                Vitara Brezza
-                            </Text>
-                        </View>
+                        {this.state.userVehicleBike.length === 0 ? (<Text style={{ color: "white", fontSize: 20, fontWeight: "bold", marginTop: 15 }}>You have no vehicles in your profile</Text>) : null}
                     </View>
+                    <TouchableOpacity style={{ backgroundColor: "#e6c532", padding: 15, paddingTop: 5, paddingBottom: 5, alignSelf: "flex-end", marginTop: 15, borderRadius: 5, marginLeft: 5 }}><Text style={{ color: "black", fontSize: 14, fontWeight: "500" }}>Add+</Text></TouchableOpacity>
                 </View>
             </ScrollView>
             <View style={styles.bottomView}>
