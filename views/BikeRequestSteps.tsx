@@ -94,7 +94,7 @@ class BikeRequestSteps extends React.Component<
         console.log('respon  of brand api', JSON.stringify(response));
       })
       .catch(err => {
-        console.log('err is get bije', err);
+        console.log('err is get bike', err);
       });
     //     console.log(response.data);
     //     this.setState({ bikeList: items, currentStepsForRequest: this.state.currentStepsForRequest + 1, searchKeyWord: "" })
@@ -153,31 +153,49 @@ class BikeRequestSteps extends React.Component<
       errorMessage("Fill up all the detials");
       return;
     }
-    if (!this.checkRegistrationNumber(this.state.bikeRegisterationNumber)) {
+    if (this.checkRegistrationNumber(this.state.bikeRegisterationNumber)) {
       errorMessage("Registration number is not in format");
       return;
     }
+    console.log(this.state.problemDescription + " " + this.state.vehicleFetchStatus + " " + this.state.bikeRegisterationNumber);
 
     console.log("Notification sent");
-    // sendNotifications(
-    //   userId,
-    //   this.state.problemDescription,
-    //   this.state.selectedBike,
-    //   this.state.vehicleFetchStatus,
-    //   this.state.bikeRegisterationNumber,
-    // )
-    //   .then(response => {
-    //     console.log(JSON.stringify(response));
-    //     this.props.navigation.dispatch(
-    //       CommonActions.reset({
-    //         index: 1,
-    //         routes: [{ name: 'MapView' }],
-    //       }),
-    //     );
-    //   })
-    //   .catch(err => {
-    //     console.log('error ins resss', err);
-    //   });
+    sendNotifications(
+      userId,
+      this.state.problemDescription,
+      this.state.selectedBike,
+      this.state.vehicleFetchStatus,
+      this.state.bikeRegisterationNumber,
+    )
+      .then(response => {
+        console.log(JSON.stringify(response));
+        if (response.status === 200) {
+          this.props.navigation.dispatch(
+            CommonActions.reset({
+              index: 1,
+              routes: [{ name: 'MapView' }],
+            }),
+          );
+          const activity = {
+            problemDescription: this.state.problemDescription,
+            selectedBike: this.state.selectedBike,
+            vehicleFetchStatus: this.state.vehicleFetchStatus,
+            bikeRegisterationNumber: this.state.bikeRegisterationNumber,
+            typeOfActivity: "BikeActivity"
+          }
+          AsyncStorage.setItem("currentActivity", JSON.stringify(activity)).then(() => {
+            console.log("Activity Saved successfully");
+          });
+          errorMessage("Notification sent succesfully wait")
+        }
+        else {
+          throw Error("Something went wrong")
+        }
+      })
+      .catch(err => {
+        console.log('error ins resss', err);
+        errorMessage(err);
+      });
   };
   render() {
     if (this.state.loading) {
@@ -846,7 +864,8 @@ class BikeRequestSteps extends React.Component<
 
             </RadioGroup>
           </View>
-          <TouchableOpacity style={{ marginTop: 20, backgroundColor: "yellow", padding: 10, width: width * 0.8, alignSelf: "center" }}>
+          <TouchableOpacity style={{ marginTop: 20, backgroundColor: "yellow", padding: 10, width: width * 0.8, alignSelf: "center" }}
+            onPress={this.navigateToMapHandler}>
             <Text style={{ fontSize: 18, color: "black", fontWeight: "500", textAlign: "center" }}>Confirm</Text>
           </TouchableOpacity>
         </ScrollView>

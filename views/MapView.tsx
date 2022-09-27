@@ -20,6 +20,8 @@ interface RequestMapViewState {
   latitude: number | undefined;
   longitude: number | undefined;
   showAlertDialog: boolean;
+  activityDetails: any;
+
 }
 class RequestMapView extends React.Component<
   RequestMapViewProps,
@@ -33,10 +35,18 @@ class RequestMapView extends React.Component<
       latitude: undefined,
       longitude: undefined,
       showAlertDialog: false,
+      activityDetails: "",
     };
   }
   componentDidMount = async () => {
     this.setState({ loading: true });
+
+    const currentActivity = await AsyncStorage.getItem("currentActivity");
+    if (currentActivity != null) {
+      this.setState({ activityDetails: JSON.parse(currentActivity) }, () => {
+        console.log(this.state.activityDetails["selectedBike"])
+      })
+    }
 
     try {
       const permissionStatus = await requestLocationPermission();
@@ -59,8 +69,9 @@ class RequestMapView extends React.Component<
                 latitude: latitude,
                 longitude: longitude,
               },
-              () => {
+              async () => {
                 this.saveLocation();
+
               },
             );
           },
@@ -93,9 +104,9 @@ class RequestMapView extends React.Component<
     this.setState({ showAlertDialog: true });
     // Do something 
   }
-
   render() {
     if (this.state.loading) {
+
       return (
         <View style={{ height: height, width: width, backgroundColor: 'yellow' }}>
           <Text>Loading...</Text>
@@ -109,6 +120,18 @@ class RequestMapView extends React.Component<
           longitude={this.state.longitude as number}
         // navigate={this.navigateToBillingHandler}
         />
+        <View style={{ position: "absolute", bottom: 10, margin: 10, width: width - 20, alignSelf: "center", backgroundColor: "yellow", zIndex: 30, padding: 10, }}>
+          {<><Text style={{ color: "black", fontSize: 18, fontWeight: "500", marginTop: 5, marginBottom: 5 }}>
+            {"Bike Details"}
+          </Text>
+            <Text style={{ color: "black", fontSize: 22, fontWeight: "500" }}>
+              {this.state.activityDetails["selectedBike"]}
+            </Text>
+            <Text style={{ color: "black", fontSize: 14, fontWeight: "300", marginTop: 5, marginBottom: 2 }}>
+              {this.state.activityDetails["bikeRegisterationNumber"] && this.state.activityDetails["bikeRegisterationNumber"].toUpperCase()}
+            </Text>
+          </>}
+        </View>
       </View>
     );
   }
