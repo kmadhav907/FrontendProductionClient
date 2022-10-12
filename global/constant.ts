@@ -164,5 +164,6 @@ export const BikeBrandList = {
   ],
 };
 
-
-const google_api_key = 'AIzaSyApOKL6jKHb8ZORqg9qNQnDAevkmwRjNK8';
+export const CarBrandList = {
+  "MARUTI SUZUKI": ["MARUTI SUZUKI Swift", "MARUTI SUZUKI Ertiga", "MARUTI SUZUKI Baleno", "MARUTI SUZUKI Wagon R" ]
+}

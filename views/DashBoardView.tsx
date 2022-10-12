@@ -92,6 +92,14 @@ class DashBoardView extends React.Component<
       }),
     );
   };
+  navigateToCarRequest = () => {
+    this.props.navigation.dispatch(
+      CommonActions.reset({
+        index: 1,
+        routes: [{ name: 'CarRequestPage' }],
+      }),
+    );
+  }
   navigateToTowRequest = () => {
     this.props.navigation.dispatch(
       CommonActions.reset({
@@ -189,7 +197,7 @@ class DashBoardView extends React.Component<
             </View>
           </View>
           <View style={styles.servicesContainer}>
-            <View style={styles.service}>
+            <TouchableOpacity onPress={this.navigateToCarRequest} style={styles.service}>
               <Image
                 style={styles.iconStyle}
                 source={require('../assets/icons/1-01.png')}
@@ -197,7 +205,7 @@ class DashBoardView extends React.Component<
               <Text style={{ color: 'white', fontSize: 12 }}>
                 Car
               </Text>
-            </View>
+            </TouchableOpacity>
             <TouchableOpacity
               style={styles.service}
               onPress={this.navigateToBikeRequest}>
