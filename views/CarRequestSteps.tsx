@@ -16,8 +16,10 @@ import {errorMessage, requestLocationPermission} from '../global/utils';
 import Geolocation from 'react-native-geolocation-service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ScrollView} from 'react-native-gesture-handler';
-import {getBikeProblems} from '../apiServices/brandsApis';
+import {getBikeProblems, sendNotifications} from '../apiServices/brandsApis';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
+import {RadioGroup, RadioButton} from 'react-native-flexi-radio-button';
+import {CommonActions} from '@react-navigation/native';
 
 interface CarRequestStepState {
   currentStepsForRequest: number;
@@ -32,8 +34,15 @@ interface CarRequestStepState {
   selectedRequest: string;
   carProblems: any[];
   carProblemsLabel: any[];
+  selectedProblems: any[];
+  carRegisteredNo: string;
+  problemDescription: string;
+  vehicleFetchStatus: string;
+  mechanicStatus: any[];
 }
-interface CarRequestStepProps {}
+interface CarRequestStepProps {
+  navigation: any;
+}
 
 class CarRequestSteps extends React.Component<
   CarRequestStepProps,
@@ -54,6 +63,11 @@ class CarRequestSteps extends React.Component<
       selectedRequest: '',
       carProblems: [],
       carProblemsLabel: [],
+      selectedProblems: [],
+      problemDescription: '',
+      carRegisteredNo: '',
+      vehicleFetchStatus: '',
+      mechanicStatus: ['Should mechanic come', 'I ll take the bike'],
     };
   }
   async componentDidMount() {
@@ -110,7 +124,86 @@ class CarRequestSteps extends React.Component<
       currentStepsForRequest: this.state.currentStepsForRequest + 1,
     });
   };
+  onSelectedItemsChange = (selectedItems: boolean, item: string) => {
+    let newSelectedProblems = this.state.selectedProblems;
+    if (selectedItems === true) {
+      newSelectedProblems = newSelectedProblems.concat(item);
+      this.setState({selectedProblems: newSelectedProblems}, () =>
+        console.log(this.state.selectedProblems),
+      );
+    } else {
+      newSelectedProblems.splice(newSelectedProblems.indexOf(item), 1);
+      this.setState({selectedProblems: newSelectedProblems}, () =>
+        console.log(this.state.selectedProblems),
+      );
+    }
+  };
+  checkRegistrationNumber = (number: string) => {
+    return number.length === 9 || number.length === 10;
+  };
+  navigateToMapHandler = async () => {
+    const userObject = await AsyncStorage.getItem('userObject');
+    const userId = JSON.parse(userObject!).userId;
+    if (
+      !this.state.problemDescription ||
+      !this.state.vehicleFetchStatus ||
+      !this.state.carRegisteredNo
+    ) {
+      errorMessage('Fill up all the detials');
+      return;
+    }
+    if (this.checkRegistrationNumber(this.state.carRegisteredNo)) {
+      errorMessage('Registration number is not in format');
+      return;
+    }
+    console.log(
+      this.state.problemDescription +
+        ' ' +
+        this.state.vehicleFetchStatus +
+        ' ' +
+        this.state.carRegisteredNo,
+    );
 
+    console.log('Notification sent');
+    sendNotifications(
+      userId,
+      this.state.problemDescription,
+      this.state.selectedCar,
+      this.state.vehicleFetchStatus,
+      this.state.carRegisteredNo,
+    )
+      .then(response => {
+        console.log(JSON.stringify(response));
+        if (response.status === 200) {
+          const activity = {
+            problemDescription: this.state.problemDescription,
+            selectedCar: this.state.selectedCar,
+            vehicleFetchStatus: this.state.vehicleFetchStatus,
+            carRegisterationNumber: this.state.carRegisteredNo,
+            typeOfActivity: 'CarActivity',
+          };
+          AsyncStorage.setItem(
+            'currentActivity',
+            JSON.stringify(activity),
+          ).then(() => {
+            console.log('Activity Saved successfully');
+          });
+          errorMessage('Notification sent succesfully wait');
+          this.props.navigation.dispatch(
+            CommonActions.reset({
+              index: 1,
+              routes: [{name: 'MapView'}],
+            }),
+          );
+        } else {
+          throw Error('Something went wrong');
+        }
+      })
+      .catch(err => {
+        console.log('error ins resss', err);
+        errorMessage(err);
+      });
+  };
   handleConfirmation = async () => {
     this.setState({loading: true});
     getBikeProblems()
@@ -443,10 +536,9 @@ class CarRequestSteps extends React.Component<
                     paddingLeft: 10,
                   }}
                   isChecked={
-                    // this.state.selectedProblems.indexOf(item.value) !== -1
-                    //   ? true
-                    //   : false
-                    true
+                    this.state.selectedProblems.indexOf(item.value) !== -1
+                      ? true
+                      : false
                   }
                   text={item.label}
                   fillColor="#D35C13"
@@ -454,10 +546,9 @@ class CarRequestSteps extends React.Component<
                     textDecorationLine: 'none',
                     color: '#fff',
                   }}
-                  onPress={
-                    (selected: boolean) => {}
-                    // this.onSelectedItemsChange(selected, item.value)
-                  }
+                  onPress={(selected: boolean) => {
+                    this.onSelectedItemsChange(selected, item.value);
+                  }}
                 />
               );
             })}
@@ -471,7 +562,12 @@ class CarRequestSteps extends React.Component<
                 borderRadius: 5,
               }}
               onPress={() => {
-                //   this.state.selectedProblems.length === 0 ? errorMessage("Please select some problems") : this.setState({ currentStepsForRequest: this.state.currentStepsForRequest + 1 })
+                this.state.selectedProblems.length === 0
+                  ? errorMessage('Please select some problems')
+                  : this.setState({
+                      currentStepsForRequest:
+                        this.state.currentStepsForRequest + 1,
+                    });
               }}>
               <Text
                 style={{
@@ -490,6 +586,169 @@ class CarRequestSteps extends React.Component<
                 marginTop: 25,
                 alignItems: 'center',
               }}></View>
+          </ScrollView>
+        </View>
+      );
+    }
+    if (!this.state.loading && this.state.currentStepsForRequest === 4) {
+      return (
+        <View style={styles.container}>
+          <ScrollView
+            style={styles.scrollContainer}
+            contentContainerStyle={{paddingBottom: 70}}>
+            <View
+              style={{
+                marginTop: height * 0.15,
+                padding: 10,
+                flexDirection: 'column',
+                backgroundColor: '#787878',
+                alignItems: 'flex-end',
+              }}>
+              <Text style={{fontSize: 18, color: 'white', fontWeight: '400'}}>
+                {this.state.selectedCar}
+              </Text>
+              <Text style={{fontSize: 22, color: 'yellow', fontWeight: '600'}}>
+                {this.state.selectedRequest}
+              </Text>
+            </View>
+            <View style={{alignItems: 'center', marginTop: 15}}>
+              <Text style={{fontSize: 14, fontWeight: 'bold', color: 'white'}}>
+                Enter your Vehicle reg no.
+              </Text>
+              <TextInput
+                style={{
+                  backgroundColor: 'white',
+                  width: width * 0.6,
+                  padding: 0,
+                  height: 45,
+                  borderRadius: 5,
+                  marginTop: 8,
+                  paddingLeft: 5,
+                  color: 'black',
+                }}
+                placeholderTextColor="#666666"
+                placeholder="KA05ABCD"
+                onChangeText={(regNo: string) => {
+                  this.setState({
+                    carRegisteredNo: regNo,
+                  });
+                }}
+              />
+            </View>
+            <View
+              style={{
+                minHeight: 5,
+                padding: 5,
+                marginTop: 25,
+                backgroundColor: '#454545',
+                marginLeft: width * 0.05,
+                width: width * 0.8,
+              }}>
+              <Text
+                style={{
+                  fontSize: 14,
+                  color: 'white',
+                  fontWeight: '400',
+                  padding: 3,
+                }}>
+                Selected Problems
+              </Text>
+              {this.state.selectedProblems.map(
+                (problems: string, index: number) => {
+                  return (
+                    <Text
+                      style={{
+                        color: 'white',
+                        fontWeight: '400',
+                        fontSize: 18,
+                        padding: 2,
+                      }}
+                      key={index}>
+                      {index.toString() + ') ' + problems}
+                    </Text>
+                  );
+                },
+              )}
+            </View>
+            <Text
+              style={{
+                textAlign: 'center',
+                fontSize: 16,
+                marginTop: 30,
+                fontWeight: '500',
+                color: 'white',
+                margin: 5,
+              }}>
+              Describe your Problem
+            </Text>
+            <TextInput
+              multiline={true}
+              numberOfLines={4}
+              style={{
+                width: '85%',
+                borderRadius: 7,
+                fontSize: 15,
+                color: 'black',
+                paddingLeft: 5,
+                backgroundColor: 'white',
+                textAlignVertical: 'top',
+                alignSelf: 'center',
+              }}
+              onChangeText={(problemDescription: string) => {
+                this.setState({
+                  problemDescription: problemDescription,
+                });
+              }}
+            />
+            <View style={{marginTop: 25}}>
+              <RadioGroup
+                onSelect={(index: any, value: any) => {
+                  if (value === 'I ll take the bike') {
+                    this.setState({
+                      vehicleFetchStatus: 'TravelToMechanic',
+                    });
+                  } else {
+                    this.setState({
+                      vehicleFetchStatus: 'NeedMechanicToCome',
+                    });
+                  }
+                }}
+                color="orange">
+                {this.state.mechanicStatus.map((item: any, index: number) => {
+                  return (
+                    <RadioButton value={item} color="orange">
+                      <Text
+                        style={{
+                          color: 'white',
+                          fontSize: 16,
+                          fontWeight: '700',
+                        }}>
+                        {item}
+                      </Text>
+                    </RadioButton>
+                  );
+                })}
+              </RadioGroup>
+            </View>
+            <TouchableOpacity
+              style={{
+                marginTop: 20,
+                backgroundColor: 'yellow',
+                padding: 10,
+                width: width * 0.8,
+                alignSelf: 'center',
+              }}
+              onPress={this.navigateToMapHandler}>
+              <Text
+                style={{
+                  fontSize: 18,
+                  color: 'black',
+                  fontWeight: '500',
+                  textAlign: 'center',
+                }}>
+                Confirm
+              </Text>
+            </TouchableOpacity>
           </ScrollView>
         </View>
       );

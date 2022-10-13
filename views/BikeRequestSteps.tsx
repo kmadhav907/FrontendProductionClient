@@ -25,9 +25,9 @@ import {CommonActions} from '@react-navigation/native';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import {requestLocationPermission} from '../global/utils';
 import Geolocation from 'react-native-geolocation-service';
-import {RadioGroup, RadioButton} from 'react-native-flexi-radio-button';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {saveLocation} from '../apiServices/locationApi';
+import {RadioGroup, RadioButton} from 'react-native-flexi-radio-button';
 
 interface BikeRequestProps {
   navigation: any;
@@ -230,12 +230,6 @@ class BikeRequestSteps extends React.Component<
       .then(response => {
         console.log(JSON.stringify(response));
         if (response.status === 200) {
-          this.props.navigation.dispatch(
-            CommonActions.reset({
-              index: 1,
-              routes: [{name: 'MapView'}],
-            }),
-          );
           const activity = {
             problemDescription: this.state.problemDescription,
             selectedBike: this.state.selectedBike,
@@ -250,6 +244,12 @@ class BikeRequestSteps extends React.Component<
             console.log('Activity Saved successfully');
           });
           errorMessage('Notification sent succesfully wait');
+          this.props.navigation.dispatch(
+            CommonActions.reset({
+              index: 1,
+              routes: [{name: 'MapView'}],
+            }),
+          );
         } else {
           throw Error('Something went wrong');
         }

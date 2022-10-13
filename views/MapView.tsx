@@ -1,12 +1,12 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react';
-import { Dimensions, Text, ToastAndroid, Touchable, View } from 'react-native';
-import { saveLocation } from '../apiServices/locationApi';
-import { requestLocationPermission } from '../global/utils';
+import {Dimensions, Text, ToastAndroid, Touchable, View} from 'react-native';
+import {saveLocation} from '../apiServices/locationApi';
+import {requestLocationPermission} from '../global/utils';
 import Geolocation from 'react-native-geolocation-service';
 import MapView from '../components/Maps/Map';
-import { CommonActions } from '@react-navigation/native';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import {CommonActions} from '@react-navigation/native';
+import {TouchableOpacity} from 'react-native-gesture-handler';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;
@@ -21,7 +21,6 @@ interface RequestMapViewState {
   longitude: number | undefined;
   showAlertDialog: boolean;
   activityDetails: any;
-
 }
 class RequestMapView extends React.Component<
   RequestMapViewProps,
@@ -35,17 +34,15 @@ class RequestMapView extends React.Component<
       latitude: undefined,
       longitude: undefined,
       showAlertDialog: false,
-      activityDetails: "",
+      activityDetails: '',
     };
   }
   componentDidMount = async () => {
-    this.setState({ loading: true });
+    this.setState({loading: true});
 
-    const currentActivity = await AsyncStorage.getItem("currentActivity");
+    const currentActivity = await AsyncStorage.getItem('currentActivity');
     if (currentActivity != null) {
-      this.setState({ activityDetails: JSON.parse(currentActivity) }, () => {
-        console.log(this.state.activityDetails["selectedBike"])
-      })
+      this.setState({activityDetails: JSON.parse(currentActivity)}, () => {});
     }
 
     try {
@@ -53,17 +50,17 @@ class RequestMapView extends React.Component<
       if (permissionStatus === true) {
         Geolocation.getCurrentPosition(
           position => {
-            const { latitude, longitude } = position.coords;
-            this.setState({ latitude: latitude, longitude: longitude });
+            const {latitude, longitude} = position.coords;
+            this.setState({latitude: latitude, longitude: longitude});
           },
           error => {
             ToastAndroid.show(error.message, ToastAndroid.SHORT);
           },
-          { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+          {enableHighAccuracy: true, timeout: 15000, maximumAge: 10000},
         );
         Geolocation.watchPosition(
           position => {
-            const { latitude, longitude } = position.coords;
+            const {latitude, longitude} = position.coords;
             this.setState(
               {
                 latitude: latitude,
@@ -71,7 +68,6 @@ class RequestMapView extends React.Component<
               },
               async () => {
                 this.saveLocation();
-
               },
             );
           },
@@ -87,7 +83,7 @@ class RequestMapView extends React.Component<
     } catch (err) {
       console.log(err);
     }
-    this.setState({ loading: false });
+    this.setState({loading: false});
   };
   saveLocation = async () => {
     const userObject = await AsyncStorage.getItem('userObject');
@@ -101,36 +97,107 @@ class RequestMapView extends React.Component<
     );
   };
   handleAlertDialog = () => {
-    this.setState({ showAlertDialog: true });
-    // Do something 
-  }
+    this.setState({showAlertDialog: true});
+    // Do something
+  };
+  getActivity = () => {
+    // if (this.state.activityDetails!['typeOfActivity']) {
+    //   console.log(this.state.activityDetails!['typeOfActivity']);
+    // }
+    switch (this.state.activityDetails!['typeOfActivity']) {
+      case 'CarActivity':
+        return (
+          <>
+            <Text
+              style={{
+                color: 'black',
+                fontSize: 18,
+                fontWeight: '500',
+                marginTop: 5,
+                marginBottom: 5,
+              }}>
+              {'Car Details'}
+            </Text>
+            <Text style={{color: 'black', fontSize: 22, fontWeight: '500'}}>
+              {this.state.activityDetails['selectedCar']}
+            </Text>
+            <Text
+              style={{
+                color: 'black',
+                fontSize: 14,
+                fontWeight: '300',
+                marginTop: 5,
+                marginBottom: 2,
+              }}>
+              {this.state.activityDetails['carRegisterationNumber'] &&
+                this.state.activityDetails[
+                  'carRegisterationNumber'
+                ].toUpperCase()}
+            </Text>
+          </>
+        );
+      case 'BikeActivity':
+        return (
+          <>
+            <Text
+              style={{
+                color: 'black',
+                fontSize: 18,
+                fontWeight: '500',
+                marginTop: 5,
+                marginBottom: 5,
+              }}>
+              {'Bike Details'}
+            </Text>
+            <Text style={{color: 'black', fontSize: 22, fontWeight: '500'}}>
+              {this.state.activityDetails['selectedBike']}
+            </Text>
+            <Text
+              style={{
+                color: 'black',
+                fontSize: 14,
+                fontWeight: '300',
+                marginTop: 5,
+                marginBottom: 2,
+              }}>
+              {this.state.activityDetails['bikeRegisterationNumber'] &&
+                this.state.activityDetails[
+                  'bikeRegisterationNumber'
+                ].toUpperCase()}
+            </Text>
+          </>
+        );
+      default:
+        return <></>;
+    }
+  };
   render() {
     if (this.state.loading) {
-
       return (
-        <View style={{ height: height, width: width, backgroundColor: 'yellow' }}>
+        <View style={{height: height, width: width, backgroundColor: 'yellow'}}>
           <Text>Loading...</Text>
         </View>
       );
     }
     return (
-      <View style={{ height: height, width: width, backgroundColor: 'yellow' }}>
+      <View style={{height: height, width: width, backgroundColor: 'yellow'}}>
         <MapView
           latitude={this.state.latitude as number}
           longitude={this.state.longitude as number}
-        // navigate={this.navigateToBillingHandler}
+          // navigate={this.navigateToBillingHandler}
         />
-        <View style={{ position: "absolute", bottom: 10, margin: 10, width: width - 20, alignSelf: "center", backgroundColor: "yellow", zIndex: 30, padding: 10, }}>
-          {<><Text style={{ color: "black", fontSize: 18, fontWeight: "500", marginTop: 5, marginBottom: 5 }}>
-            {"Bike Details"}
-          </Text>
-            <Text style={{ color: "black", fontSize: 22, fontWeight: "500" }}>
-              {this.state.activityDetails["selectedBike"]}
-            </Text>
-            <Text style={{ color: "black", fontSize: 14, fontWeight: "300", marginTop: 5, marginBottom: 2 }}>
-              {this.state.activityDetails["bikeRegisterationNumber"] && this.state.activityDetails["bikeRegisterationNumber"].toUpperCase()}
-            </Text>
-          </>}
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 10,
+            margin: 10,
+            width: width - 20,
+            alignSelf: 'center',
+            backgroundColor: 'yellow',
+            zIndex: 30,
+            padding: 10,
+          }}>
+          <>{this.getActivity()}</>
         </View>
       </View>
     );
