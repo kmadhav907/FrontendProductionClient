@@ -1,12 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React from 'react';
-import {Dimensions, Text, ToastAndroid, Touchable, View} from 'react-native';
+import {Dimensions, Text, ToastAndroid, View} from 'react-native';
 import {saveLocation} from '../apiServices/locationApi';
 import {requestLocationPermission} from '../global/utils';
 import Geolocation from 'react-native-geolocation-service';
 import MapView from '../components/Maps/Map';
-import {CommonActions} from '@react-navigation/native';
-import {TouchableOpacity} from 'react-native-gesture-handler';
 
 const height = Dimensions.get('window').height;
 const width = Dimensions.get('window').width;

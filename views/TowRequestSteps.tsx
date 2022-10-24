@@ -1,6 +1,5 @@
 import React from 'react';
 import {
-  Alert,
   Dimensions,
   Image,
   Modal,
@@ -8,12 +7,9 @@ import {
   StyleSheet,
   Text,
   TextInput,
-  TouchableHighlight,
   TouchableOpacity,
   View,
 } from 'react-native';
-import BouncyCheckbox from 'react-native-bouncy-checkbox';
-import {errorMessage} from '../global/utils';
 interface BillingScreenProps {
   navigation: any;
 }
@@ -181,7 +177,7 @@ class BillingScreen extends React.Component<
             </TouchableOpacity>
           </ScrollView>
           {this.state.showPLeaseFillVehicleNoModal && (
-            <Modal isVisible={this.state.showPLeaseFillVehicleNoModal} >
+            <Modal visible={this.state.showPLeaseFillVehicleNoModal} >
               <View
                 style={{
                   width: width * 0.9,

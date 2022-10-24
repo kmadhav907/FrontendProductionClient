@@ -11,9 +11,7 @@ import {
   View,
 } from 'react-native';
 import {ScrollView} from 'react-native-gesture-handler';
-import Modal from 'react-native-modal/dist/modal';
 import {
-  getBikeBrands,
   getBikeDetailsList,
   getBikeProblems,
   sendNotifications,
@@ -196,68 +194,72 @@ class BikeRequestSteps extends React.Component<
     return number.length === 9 || number.length === 10;
   };
   navigateToMapHandler = async () => {
-    const userObject = await AsyncStorage.getItem('userObject');
-    const userId = JSON.parse(userObject!).userId;
-    this.setState({showBikeProblemsModal: false});
-    if (
-      !this.state.problemDescription ||
-      !this.state.vehicleFetchStatus ||
-      !this.state.bikeRegisterationNumber
-    ) {
-      errorMessage('Fill up all the detials');
-      return;
-    }
-    if (this.checkRegistrationNumber(this.state.bikeRegisterationNumber)) {
-      errorMessage('Registration number is not in format');
-      return;
-    }
-    console.log(
-      this.state.problemDescription +
-        ' ' +
-        this.state.vehicleFetchStatus +
-        ' ' +
-        this.state.bikeRegisterationNumber,
-    );
+    console.log(this.state.currentStepsForRequest);
+    this.setState({
+      currentStepsForRequest: this.state.currentStepsForRequest + 1,
+    });
+    // const userObject = await AsyncStorage.getItem('userObject');
+    // const userId = JSON.parse(userObject!).userId;
+    // this.setState({showBikeProblemsModal: false});
+    // if (
+    //   !this.state.problemDescription ||
+    //   !this.state.vehicleFetchStatus ||
+    //   !this.state.bikeRegisterationNumber
+    // ) {
+    //   errorMessage('Fill up all the detials');
+    //   return;
+    // }
+    // if (this.checkRegistrationNumber(this.state.bikeRegisterationNumber)) {
+    //   errorMessage('Registration number is not in format');
+    //   return;
+    // }
+    // console.log(
+    //   this.state.problemDescription +
+    //     ' ' +
+    //     this.state.vehicleFetchStatus +
+    //     ' ' +
+    //     this.state.bikeRegisterationNumber,
+    // );
 
-    console.log('Notification sent');
-    sendNotifications(
-      userId,
-      this.state.problemDescription,
-      this.state.selectedBike,
-      this.state.vehicleFetchStatus,
-      this.state.bikeRegisterationNumber,
-    )
-      .then(response => {
-        console.log(JSON.stringify(response));
-        if (response.status === 200) {
-          const activity = {
-            problemDescription: this.state.problemDescription,
-            selectedBike: this.state.selectedBike,
-            vehicleFetchStatus: this.state.vehicleFetchStatus,
-            bikeRegisterationNumber: this.state.bikeRegisterationNumber,
-            typeOfActivity: 'BikeActivity',
-          };
-          AsyncStorage.setItem(
-            'currentActivity',
-            JSON.stringify(activity),
-          ).then(() => {
-            console.log('Activity Saved successfully');
-          });
-          errorMessage('Notification sent succesfully wait');
-          this.props.navigation.dispatch(
-            CommonActions.reset({
-              index: 1,
-              routes: [{name: 'MapView'}],
-            }),
-          );
-        } else {
-          throw Error('Something went wrong');
-        }
-      })
-      .catch(err => {
-        console.log('error ins resss', err);
-        errorMessage(err);
-      });
+    // console.log('Notification sent');
+    // sendNotifications(
+    //   userId,
+    //   this.state.problemDescription,
+    //   this.state.selectedBike,
+    //   this.state.vehicleFetchStatus,
+    //   this.state.bikeRegisterationNumber,
+    // )
+    //   .then(response => {
+    //     console.log(JSON.stringify(response));
+    //     if (response.status === 200) {
+    //       const activity = {
+    //         problemDescription: this.state.problemDescription,
+    //         selectedBike: this.state.selectedBike,
+    //         vehicleFetchStatus: this.state.vehicleFetchStatus,
+    //         bikeRegisterationNumber: this.state.bikeRegisterationNumber,
+    //         typeOfActivity: 'BikeActivity',
+    //       };
+    //       AsyncStorage.setItem(
+    //         'currentActivity',
+    //         JSON.stringify(activity),
+    //       ).then(() => {
+    //         console.log('Activity Saved successfully');
+    //       });
+    //       errorMessage('Notification sent succesfully wait');
+    //       this.props.navigation.dispatch(
+    //         CommonActions.reset({
+    //           index: 1,
+    //           routes: [{name: 'MapView'}],
+    //         }),
+    //       );
+    //     } else {
+    //       throw Error('Something went wrong');
+    //     }
+    //   })
+    //   .catch(err => {
+    //     console.log('error ins resss', err);
+    //     errorMessage(err);
+    //   });
   };
   render() {
     if (this.state.loading) {
@@ -865,7 +867,8 @@ class BikeRequestSteps extends React.Component<
                 width: width * 0.8,
                 alignSelf: 'center',
               }}
-              onPress={this.navigateToMapHandler}>
+              onPress={this.navigateToMapHandler}
+              >
               <Text
                 style={{
                   fontSize: 18,
@@ -876,6 +879,7 @@ class BikeRequestSteps extends React.Component<
                 Confirm
               </Text>
             </TouchableOpacity>
+            
           </ScrollView>
           <View style={styles.bottomView}>
             <TouchableOpacity>
@@ -900,6 +904,178 @@ class BikeRequestSteps extends React.Component<
           </View>
         </View>
       );
+    }
+
+    if (!this.state.loading && this.state.currentStepsForRequest === 5) {
+      if(this.state.vehicleFetchStatus === 'TravelToMechanic'){
+        return(
+          <View style={styles.container}>
+          <ScrollView
+            style={styles.scrollContainer}
+            contentContainerStyle={{paddingBottom: 70}}>
+            <View style={styles.placeCard}>
+              <View style={styles.placeCardIconView}>
+                <Image
+                  style={styles.placheCardIcon}
+                  source={require('../assets/placeholder.png')}
+                />
+              </View>
+              <View style={styles.placeCardTextMain}>
+                <Text>Name , Location</Text>
+              </View>
+            </View>
+            <Text style={styles.handedOverVehicle}>You Have Successfully Hand Over your Vehicle to our Mechanic</Text>
+            <View style={styles.jobContainer}>
+              <View>
+                <Text style={styles.jobEachContainer}>Job Card No</Text>
+                <Text style={styles.jobEachContainer}>Date/Time</Text>
+                <Text style={styles.jobEachContainer}>Estimated Delivery</Text>
+              </View>
+              <View>
+                <Text style={styles.jobEachContainer}>le20156</Text>
+                <Text style={styles.jobEachContainer}>02/02/2022 10:40AM</Text>
+                <Text style={styles.jobEachContainer}>05 Hrs</Text>
+              </View>
+            </View>
+            <Text style={styles.digitBillNoPay}>Without Digital Bill do not pay</Text>
+          </ScrollView>
+          <View style={styles.bottomView}>
+              <TouchableOpacity>
+                <Image
+                  source={require('../assets/2-01.png')}
+                  style={styles.bottomIconStyle}
+                />
+              </TouchableOpacity>
+  
+              <TouchableOpacity>
+                <Image
+                  source={require('../assets/3-01.png')}
+                  style={styles.bottomIconStyle}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Image
+                  source={require('../assets/4-01.png')}
+                  style={styles.bottomIconStyle}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+        )
+      }
+      if(this.state.vehicleFetchStatus === 'NeedMechanicToCome'){
+        return(
+          <View style={styles.container}>
+          <ScrollView
+            style={styles.scrollContainer}
+            contentContainerStyle={{paddingBottom: 70}}>
+              <Text style={{color: 'white'}}>NeedMechanicToCome</Text>
+          </ScrollView>
+          <View style={styles.bottomView}>
+              <TouchableOpacity>
+                <Image
+                  source={require('../assets/2-01.png')}
+                  style={styles.bottomIconStyle}
+                />
+              </TouchableOpacity>
+  
+              <TouchableOpacity>
+                <Image
+                  source={require('../assets/3-01.png')}
+                  style={styles.bottomIconStyle}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Image
+                  source={require('../assets/4-01.png')}
+                  style={styles.bottomIconStyle}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+        )
+      }
+    }
+    if (!this.state.loading && this.state.currentStepsForRequest === 6) {
+      return(
+          <View style={styles.container}>
+          <ScrollView
+            style={styles.scrollContainer}
+            contentContainerStyle={{paddingBottom: 70}}>
+            <View style={styles.placeCard}>
+              <View style={styles.placeCardIconView}>
+                <Image
+                  style={styles.placheCardIcon}
+                  source={require('../assets/placeholder.png')}
+                />
+              </View>
+              <View style={styles.placeCardTextMain}>
+                <Text>Name , Location</Text>
+              </View>
+            </View>
+            <View>
+            <Text style={{color: '#e6c532', textAlign: 'center' , alignContent: 'center' , marginTop: 10, fontSize: 15}}>You Have a Notification from AskMechanic</Text>
+            <Text style={{color: '#e6c532', textAlign: 'center' , alignContent: 'center' , marginTop: 10, fontSize: 25}}>Job is done!</Text>
+            <Text style={{color: '#e6c532', textAlign: 'center' , alignContent: 'center' , marginTop: 10, fontSize: 20}}>Your Vehicle is Ready for delivery!</Text>
+            </View>
+            <View style={styles.billContainer}>
+              <Text style={{padding: 10,  justifyContent: 'center' , textAlign: 'center' , backgroundColor: '#454545' , fontSize: 20, color: 'white' , borderTopLeftRadius: 10, borderTopRightRadius: 10,}}>Bill</Text>
+              <View style={styles.billSection}>
+                <View style={styles.billSubSection}>
+                  <Text style={{color: 'white', textAlign: 'center' , alignContent: 'center', marginTop: 5, fontSize: 15,}}>1)Chain Setting</Text>
+                  <Text style={{color: 'white', textAlign: 'center' , alignContent: 'center', marginTop: 5, fontSize: 15,}}>2)Break Issue</Text>
+                  <Text style={{color: 'white', textAlign: 'center' , alignContent: 'center', marginTop: 5, fontSize: 15,}}>3)Battery</Text>
+                </View>
+                <View style={styles.billSubSection}>
+                  <Text style={{color: 'white', textAlign: 'center' , alignContent: 'center', marginTop: 5, fontSize: 15,}}>20.00</Text>
+                  <Text style={{color: 'white', textAlign: 'center' , alignContent: 'center', marginTop: 5, fontSize: 15,}}>40.00</Text>
+                  <Text style={{color: 'white', textAlign: 'center' , alignContent: 'center', marginTop: 5, fontSize: 15,}}>1200.00</Text>
+                </View>
+              </View>
+              <View style={styles.totalSection}>
+                <Text style={{color: 'white', textAlign: 'center' , alignContent: 'center', marginTop: 5, fontSize: 15,}}>Total</Text>
+                <Text style={{color: 'white', textAlign: 'center' , alignContent: 'center', marginTop: 5, fontSize: 15,}}>1260.00</Text>
+              </View>
+            </View>
+            <View style={styles.paythorugh}>
+              <Text style={{color: 'white', textAlign: 'center' , alignContent: 'center', fontSize: 25,}}>Pay Through</Text>
+              <View style={styles.selectVehiclButtonContainer}>
+              <TouchableOpacity>
+                <Text style={styles.selectVehicleButtonStyleonClick }>
+                  Cash
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Text style={styles.selectVehicleButtonStyleonClick}>
+                  Online Payment
+                </Text>
+              </TouchableOpacity>
+            </View>
+            </View>
+          </ScrollView>
+            <View style={styles.bottomView}>
+              <TouchableOpacity>
+                <Image  
+                  source={require('../assets/2-01.png')}
+                  style={styles.bottomIconStyle}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity>
+                <Image
+                  source={require('../assets/3-01.png')}
+                  style={styles.bottomIconStyle}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Image
+                  source={require('../assets/4-01.png')}
+                  style={styles.bottomIconStyle}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+      )
     }
   }
 }
@@ -1009,6 +1185,93 @@ const styles = StyleSheet.create({
   searchSectionIcon: {
     width: 30,
     height: 30,
+  },
+  handedOverVehicle: {
+    width: width * 0.7,
+    fontSize: 20,
+    textAlign: 'center',
+    alignSelf: 'center',
+    color: '#e6c532',
+    marginTop: height / 20,
+  },
+  jobContainer: {
+    marginTop: 25,
+    flexDirection: 'row',
+    width: width * 0.9,
+    borderRadius: 10,
+    paddingTop: 10,
+    paddingBottom: 10,
+    alignItems: 'center',
+    alignSelf: 'center',
+    justifyContent: 'center'
+  },
+  
+  jobEachContainer: {
+    padding: 10,
+    marginBottom: 5,
+    marginRight: 5,
+    backgroundColor: '#454545',
+    color: 'white'
+  },
+  digitBillNoPay: {
+    width: width * 0.5,
+    fontSize: 20,
+    textAlign: 'center',
+    alignSelf: 'center',
+    color: '#e6c532',
+    marginTop: height / 20,
+  },
+  billContainer: {
+    flexDirection: 'column',
+    width: width * 0.9,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    marginTop: height / 10,
+    borderRadius: 10,
+  },
+  billSection: {
+    marginTop: 5,
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    width: width * 0.9,
+    backgroundColor:  '#454545',
+    marginBottom: 5,
+    padding: 20,
+  },
+  billSubSection: {
+    marginRight: 5,
+  },
+  totalSection: {
+    padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    width: width * 0.9,
+    backgroundColor:  '#454545',
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
+  },
+  paythorugh: {
+    marginTop: height / 20,
+  },
+  selectVehiclButtonContainer: {
+    width: width,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: width * 0.1,
+  },
+  selectVehicleButtonStyleonClick: {
+    width: '100%',
+    fontSize: 16,
+    backgroundColor: '#e6c532',
+    paddingLeft: 25,
+    paddingRight: 25,
+    paddingTop: 8,
+    paddingBottom: 8,
+    borderRadius: 15,
+    lineHeight: 24,
+    color: 'black',
+    textAlign: 'center',
+    fontWeight: 'bold',
   },
   bottomView: {
     backgroundColor: '#e6c532',
