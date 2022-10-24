@@ -74,7 +74,7 @@ class BikeRequestSteps extends React.Component<
       bikeProblemsLabel: [],
       selectedProblems: [],
       showBikeProblemsModal: false,
-      mechanicStatus: ['Should mechanic come', 'I ll take the bike'],
+      mechanicStatus: ['Mechanic Should Come.', 'I\'l take bike to Mechanic.'],
       bikeRegisterationNumber: '',
       problemDescription: '',
       vehicleFetchStatus: '',
@@ -830,7 +830,7 @@ class BikeRequestSteps extends React.Component<
             <View style={{marginTop: 25}}>
               <RadioGroup
                 onSelect={(index: any, value: any) => {
-                  if (value === 'I ll take the bike') {
+                  if (value === 'I\'l take bike to Mechanic.') {
                     this.setState({
                       vehicleFetchStatus: 'TravelToMechanic',
                     });
