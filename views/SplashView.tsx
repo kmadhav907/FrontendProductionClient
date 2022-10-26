@@ -29,7 +29,14 @@ class SplashView extends React.Component<SplashViewProps, SplashViewState> {
             if (currentActivity == null) {
               this.props.navigation.navigate('DashBoardView');
             } else {
-              this.props.navigation.navigate('MapView');
+              let typeOfActivity = JSON.parse(currentActivity).typeOfActivity;
+              let navigation = typeOfActivity
+                .toLowerCase()
+                .includes('Bike'.toLowerCase())
+                ? 'BikeRequestPage'
+                : 'CarRequestPage';
+
+              this.props.navigation.navigate(navigation);
             }
           } else {
             this.props.navigation.navigate('LoginView');

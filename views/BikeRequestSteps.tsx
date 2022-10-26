@@ -26,6 +26,7 @@ import Geolocation from 'react-native-geolocation-service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {saveLocation} from '../apiServices/locationApi';
 import {RadioGroup, RadioButton} from 'react-native-flexi-radio-button';
+import RequestMapView from './MapView';
 
 interface BikeRequestProps {
   navigation: any;
@@ -72,7 +73,7 @@ class BikeRequestSteps extends React.Component<
       bikeProblemsLabel: [],
       selectedProblems: [],
       showBikeProblemsModal: false,
-      mechanicStatus: ['Mechanic Should Come.', 'I\'l take bike to Mechanic.'],
+      mechanicStatus: ['Mechanic Should Come.', "I'l take bike to Mechanic."],
       bikeRegisterationNumber: '',
       problemDescription: '',
       vehicleFetchStatus: '',
@@ -111,11 +112,42 @@ class BikeRequestSteps extends React.Component<
           },
         );
       }
+      let currentActivity = await AsyncStorage.getItem('currentActivity');
+      if (currentActivity != null) {
+        let vehicleFetchStatus = JSON.parse(currentActivity).vehicleFetchStatus;
+        console.log(vehicleFetchStatus);
+        this.setState({
+          currentStepsForRequest: 5,
+          vehicleFetchStatus: vehicleFetchStatus,
+        });
+      }
     } catch (err) {
       console.log(err);
     }
     this.setState({loading: false});
   };
+  componentDidUpdate = (prevProps: any, prevState: any) => {
+    console.log(prevState.currentStepsForRequest);
+    if (this.state.currentStepsForRequest === 5) {
+      let timeOut = setTimeout(() => {
+        this.setState({
+          currentStepsForRequest: 6,
+        });
+      }, 2000);
+      // clearTimeout(timeOut);
+    }
+    // if (this.state.currentStepsForRequest === 5) {
+    //   timeoutId = setTimeout(() => {
+    //     this.setState({
+    //       currentStepsForRequest: this.state.currentStepsForRequest + 1,
+    //     });
+    //   }, 5000);
+    // }
+    // if (this.state.currentStepsForRequest === 6) {
+    //   clearTimeout(timeoutId);
+    // }
+  };
+
   saveLocation = async () => {
     const userObject = await AsyncStorage.getItem('userObject');
     const userId = JSON.parse(userObject!).userId;
@@ -194,72 +226,75 @@ class BikeRequestSteps extends React.Component<
     return number.length === 9 || number.length === 10;
   };
   navigateToMapHandler = async () => {
-    console.log(this.state.currentStepsForRequest);
-    this.setState({
-      currentStepsForRequest: this.state.currentStepsForRequest + 1,
-    });
-    // const userObject = await AsyncStorage.getItem('userObject');
-    // const userId = JSON.parse(userObject!).userId;
-    // this.setState({showBikeProblemsModal: false});
-    // if (
-    //   !this.state.problemDescription ||
-    //   !this.state.vehicleFetchStatus ||
-    //   !this.state.bikeRegisterationNumber
-    // ) {
-    //   errorMessage('Fill up all the detials');
-    //   return;
-    // }
-    // if (this.checkRegistrationNumber(this.state.bikeRegisterationNumber)) {
-    //   errorMessage('Registration number is not in format');
-    //   return;
-    // }
-    // console.log(
-    //   this.state.problemDescription +
-    //     ' ' +
-    //     this.state.vehicleFetchStatus +
-    //     ' ' +
-    //     this.state.bikeRegisterationNumber,
-    // );
+    // console.log(this.state.currentStepsForRequest);
+    // this.setState({
+    //   currentStepsForRequest: this.state.currentStepsForRequest + 1,
+    // });
+    const userObject = await AsyncStorage.getItem('userObject');
+    const userId = JSON.parse(userObject!).userId;
+    this.setState({showBikeProblemsModal: false});
+    if (
+      !this.state.problemDescription ||
+      !this.state.vehicleFetchStatus ||
+      !this.state.bikeRegisterationNumber
+    ) {
+      errorMessage('Fill up all the detials');
+      return;
+    }
+    if (this.checkRegistrationNumber(this.state.bikeRegisterationNumber)) {
+      errorMessage('Registration number is not in format');
+      return;
+    }
+    console.log(
+      this.state.problemDescription +
+        ' ' +
+        this.state.vehicleFetchStatus +
+        ' ' +
+        this.state.bikeRegisterationNumber,
+    );
 
-    // console.log('Notification sent');
-    // sendNotifications(
-    //   userId,
-    //   this.state.problemDescription,
-    //   this.state.selectedBike,
-    //   this.state.vehicleFetchStatus,
-    //   this.state.bikeRegisterationNumber,
-    // )
-    //   .then(response => {
-    //     console.log(JSON.stringify(response));
-    //     if (response.status === 200) {
-    //       const activity = {
-    //         problemDescription: this.state.problemDescription,
-    //         selectedBike: this.state.selectedBike,
-    //         vehicleFetchStatus: this.state.vehicleFetchStatus,
-    //         bikeRegisterationNumber: this.state.bikeRegisterationNumber,
-    //         typeOfActivity: 'BikeActivity',
-    //       };
-    //       AsyncStorage.setItem(
-    //         'currentActivity',
-    //         JSON.stringify(activity),
-    //       ).then(() => {
-    //         console.log('Activity Saved successfully');
-    //       });
-    //       errorMessage('Notification sent succesfully wait');
-    //       this.props.navigation.dispatch(
-    //         CommonActions.reset({
-    //           index: 1,
-    //           routes: [{name: 'MapView'}],
-    //         }),
-    //       );
-    //     } else {
-    //       throw Error('Something went wrong');
-    //     }
-    //   })
-    //   .catch(err => {
-    //     console.log('error ins resss', err);
-    //     errorMessage(err);
-    //   });
+    console.log('Notification sent');
+    sendNotifications(
+      userId,
+      this.state.problemDescription,
+      this.state.selectedBike,
+      this.state.vehicleFetchStatus,
+      this.state.bikeRegisterationNumber,
+    )
+      .then(response => {
+        console.log(JSON.stringify(response));
+        if (response.status === 200) {
+          const activity = {
+            problemDescription: this.state.problemDescription,
+            selectedBike: this.state.selectedBike,
+            vehicleFetchStatus: this.state.vehicleFetchStatus,
+            bikeRegisterationNumber: this.state.bikeRegisterationNumber,
+            typeOfActivity: 'BikeActivity',
+          };
+          AsyncStorage.setItem(
+            'currentActivity',
+            JSON.stringify(activity),
+          ).then(() => {
+            console.log('Activity Saved successfully');
+          });
+          errorMessage('Notification sent succesfully wait');
+          this.setState({
+            currentStepsForRequest: this.state.currentStepsForRequest + 1,
+          });
+          // this.props.navigation.dispatch(
+          //   CommonActions.reset({
+          //     index: 1,
+          //     routes: [{name: 'MapView'}],
+          //   }),
+          // );
+        } else {
+          throw Error('Something went wrong');
+        }
+      })
+      .catch(err => {
+        console.log('error ins resss', err);
+        errorMessage(err);
+      });
   };
   render() {
     if (this.state.loading) {
@@ -793,7 +828,7 @@ class BikeRequestSteps extends React.Component<
                         padding: 2,
                       }}
                       key={index}>
-                      {index.toString() + ') ' + problems}
+                      {(index + 1).toString() + ') ' + problems}
                     </Text>
                   );
                 },
@@ -832,7 +867,7 @@ class BikeRequestSteps extends React.Component<
             <View style={{marginTop: 25}}>
               <RadioGroup
                 onSelect={(index: any, value: any) => {
-                  if (value === 'I\'l take bike to Mechanic.') {
+                  if (value === "I'l take bike to Mechanic.") {
                     this.setState({
                       vehicleFetchStatus: 'TravelToMechanic',
                     });
@@ -867,8 +902,7 @@ class BikeRequestSteps extends React.Component<
                 width: width * 0.8,
                 alignSelf: 'center',
               }}
-              onPress={this.navigateToMapHandler}
-              >
+              onPress={this.navigateToMapHandler}>
               <Text
                 style={{
                   fontSize: 18,
@@ -879,7 +913,6 @@ class BikeRequestSteps extends React.Component<
                 Confirm
               </Text>
             </TouchableOpacity>
-            
           </ScrollView>
           <View style={styles.bottomView}>
             <TouchableOpacity>
@@ -905,100 +938,109 @@ class BikeRequestSteps extends React.Component<
         </View>
       );
     }
-
     if (!this.state.loading && this.state.currentStepsForRequest === 5) {
-      if(this.state.vehicleFetchStatus === 'TravelToMechanic'){
-        return(
-          <View style={styles.container}>
-          <ScrollView
-            style={styles.scrollContainer}
-            contentContainerStyle={{paddingBottom: 70}}>
-            <View style={styles.placeCard}>
-              <View style={styles.placeCardIconView}>
-                <Image
-                  style={styles.placheCardIcon}
-                  source={require('../assets/placeholder.png')}
-                />
-              </View>
-              <View style={styles.placeCardTextMain}>
-                <Text>Name , Location</Text>
-              </View>
-            </View>
-            <Text style={styles.handedOverVehicle}>You Have Successfully Hand Over your Vehicle to our Mechanic</Text>
-            <View style={styles.jobContainer}>
-              <View>
-                <Text style={styles.jobEachContainer}>Job Card No</Text>
-                <Text style={styles.jobEachContainer}>Date/Time</Text>
-                <Text style={styles.jobEachContainer}>Estimated Delivery</Text>
-              </View>
-              <View>
-                <Text style={styles.jobEachContainer}>le20156</Text>
-                <Text style={styles.jobEachContainer}>02/02/2022 10:40AM</Text>
-                <Text style={styles.jobEachContainer}>05 Hrs</Text>
-              </View>
-            </View>
-            <Text style={styles.digitBillNoPay}>Without Digital Bill do not pay</Text>
-          </ScrollView>
-          <View style={styles.bottomView}>
-              <TouchableOpacity>
-                <Image
-                  source={require('../assets/2-01.png')}
-                  style={styles.bottomIconStyle}
-                />
-              </TouchableOpacity>
-  
-              <TouchableOpacity>
-                <Image
-                  source={require('../assets/3-01.png')}
-                  style={styles.bottomIconStyle}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Image
-                  source={require('../assets/4-01.png')}
-                  style={styles.bottomIconStyle}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-        )
-      }
-      if(this.state.vehicleFetchStatus === 'NeedMechanicToCome'){
-        return(
-          <View style={styles.container}>
-          <ScrollView
-            style={styles.scrollContainer}
-            contentContainerStyle={{paddingBottom: 70}}>
-              <Text style={{color: 'white'}}>NeedMechanicToCome</Text>
-          </ScrollView>
-          <View style={styles.bottomView}>
-              <TouchableOpacity>
-                <Image
-                  source={require('../assets/2-01.png')}
-                  style={styles.bottomIconStyle}
-                />
-              </TouchableOpacity>
-  
-              <TouchableOpacity>
-                <Image
-                  source={require('../assets/3-01.png')}
-                  style={styles.bottomIconStyle}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Image
-                  source={require('../assets/4-01.png')}
-                  style={styles.bottomIconStyle}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-        )
-      }
+      return <RequestMapView navigation={this.props.navigation} />;
     }
     if (!this.state.loading && this.state.currentStepsForRequest === 6) {
-      return(
+      if (this.state.vehicleFetchStatus !== 'TravelToMechanic') {
+        return (
           <View style={styles.container}>
+            <ScrollView
+              style={styles.scrollContainer}
+              contentContainerStyle={{paddingBottom: 70}}>
+              <View style={styles.placeCard}>
+                <View style={styles.placeCardIconView}>
+                  <Image
+                    style={styles.placheCardIcon}
+                    source={require('../assets/placeholder.png')}
+                  />
+                </View>
+                <View style={styles.placeCardTextMain}>
+                  <Text>Name , Location</Text>
+                </View>
+              </View>
+              <Text style={styles.handedOverVehicle}>
+                You Have Successfully Hand Over your Vehicle to our Mechanic
+              </Text>
+              <View style={styles.jobContainer}>
+                <View>
+                  <Text style={styles.jobEachContainer}>Job Card No</Text>
+                  <Text style={styles.jobEachContainer}>Date/Time</Text>
+                  <Text style={styles.jobEachContainer}>
+                    Estimated Delivery
+                  </Text>
+                </View>
+                <View>
+                  <Text style={styles.jobEachContainer}>le20156</Text>
+                  <Text style={styles.jobEachContainer}>
+                    02/02/2022 10:40AM
+                  </Text>
+                  <Text style={styles.jobEachContainer}>05 Hrs</Text>
+                </View>
+              </View>
+              <Text style={styles.digitBillNoPay}>
+                Without Digital Bill do not pay
+              </Text>
+            </ScrollView>
+            <View style={styles.bottomView}>
+              <TouchableOpacity>
+                <Image
+                  source={require('../assets/2-01.png')}
+                  style={styles.bottomIconStyle}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity>
+                <Image
+                  source={require('../assets/3-01.png')}
+                  style={styles.bottomIconStyle}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Image
+                  source={require('../assets/4-01.png')}
+                  style={styles.bottomIconStyle}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+        );
+      } else {
+        return (
+          <View style={styles.container}>
+            <ScrollView
+              style={styles.scrollContainer}
+              contentContainerStyle={{paddingBottom: 70}}>
+              <Text style={{color: 'white'}}>NeedMechanicToCome</Text>
+            </ScrollView>
+            <View style={styles.bottomView}>
+              <TouchableOpacity>
+                <Image
+                  source={require('../assets/2-01.png')}
+                  style={styles.bottomIconStyle}
+                />
+              </TouchableOpacity>
+
+              <TouchableOpacity>
+                <Image
+                  source={require('../assets/3-01.png')}
+                  style={styles.bottomIconStyle}
+                />
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <Image
+                  source={require('../assets/4-01.png')}
+                  style={styles.bottomIconStyle}
+                />
+              </TouchableOpacity>
+            </View>
+          </View>
+        );
+      }
+    }
+    if (!this.state.loading && this.state.currentStepsForRequest === 7) {
+      return (
+        <View style={styles.container}>
           <ScrollView
             style={styles.scrollContainer}
             contentContainerStyle={{paddingBottom: 70}}>
@@ -1014,68 +1056,187 @@ class BikeRequestSteps extends React.Component<
               </View>
             </View>
             <View>
-            <Text style={{color: '#e6c532', textAlign: 'center' , alignContent: 'center' , marginTop: 10, fontSize: 15}}>You Have a Notification from AskMechanic</Text>
-            <Text style={{color: '#e6c532', textAlign: 'center' , alignContent: 'center' , marginTop: 10, fontSize: 25}}>Job is done!</Text>
-            <Text style={{color: '#e6c532', textAlign: 'center' , alignContent: 'center' , marginTop: 10, fontSize: 20}}>Your Vehicle is Ready for delivery!</Text>
+              <Text
+                style={{
+                  color: '#e6c532',
+                  textAlign: 'center',
+                  alignContent: 'center',
+                  marginTop: 10,
+                  fontSize: 15,
+                }}>
+                You Have a Notification from AskMechanic
+              </Text>
+              <Text
+                style={{
+                  color: '#e6c532',
+                  textAlign: 'center',
+                  alignContent: 'center',
+                  marginTop: 10,
+                  fontSize: 25,
+                }}>
+                Job is done!
+              </Text>
+              <Text
+                style={{
+                  color: '#e6c532',
+                  textAlign: 'center',
+                  alignContent: 'center',
+                  marginTop: 10,
+                  fontSize: 20,
+                }}>
+                Your Vehicle is Ready for delivery!
+              </Text>
             </View>
             <View style={styles.billContainer}>
-              <Text style={{padding: 10,  justifyContent: 'center' , textAlign: 'center' , backgroundColor: '#454545' , fontSize: 20, color: 'white' , borderTopLeftRadius: 10, borderTopRightRadius: 10,}}>Bill</Text>
+              <Text
+                style={{
+                  padding: 10,
+                  justifyContent: 'center',
+                  textAlign: 'center',
+                  backgroundColor: '#454545',
+                  fontSize: 20,
+                  color: 'white',
+                  borderTopLeftRadius: 10,
+                  borderTopRightRadius: 10,
+                }}>
+                Bill
+              </Text>
               <View style={styles.billSection}>
                 <View style={styles.billSubSection}>
-                  <Text style={{color: 'white', textAlign: 'center' , alignContent: 'center', marginTop: 5, fontSize: 15,}}>1)Chain Setting</Text>
-                  <Text style={{color: 'white', textAlign: 'center' , alignContent: 'center', marginTop: 5, fontSize: 15,}}>2)Break Issue</Text>
-                  <Text style={{color: 'white', textAlign: 'center' , alignContent: 'center', marginTop: 5, fontSize: 15,}}>3)Battery</Text>
+                  <Text
+                    style={{
+                      color: 'white',
+                      textAlign: 'center',
+                      alignContent: 'center',
+                      marginTop: 5,
+                      fontSize: 15,
+                    }}>
+                    1)Chain Setting
+                  </Text>
+                  <Text
+                    style={{
+                      color: 'white',
+                      textAlign: 'center',
+                      alignContent: 'center',
+                      marginTop: 5,
+                      fontSize: 15,
+                    }}>
+                    2)Break Issue
+                  </Text>
+                  <Text
+                    style={{
+                      color: 'white',
+                      textAlign: 'center',
+                      alignContent: 'center',
+                      marginTop: 5,
+                      fontSize: 15,
+                    }}>
+                    3)Battery
+                  </Text>
                 </View>
                 <View style={styles.billSubSection}>
-                  <Text style={{color: 'white', textAlign: 'center' , alignContent: 'center', marginTop: 5, fontSize: 15,}}>20.00</Text>
-                  <Text style={{color: 'white', textAlign: 'center' , alignContent: 'center', marginTop: 5, fontSize: 15,}}>40.00</Text>
-                  <Text style={{color: 'white', textAlign: 'center' , alignContent: 'center', marginTop: 5, fontSize: 15,}}>1200.00</Text>
+                  <Text
+                    style={{
+                      color: 'white',
+                      textAlign: 'center',
+                      alignContent: 'center',
+                      marginTop: 5,
+                      fontSize: 15,
+                    }}>
+                    20.00
+                  </Text>
+                  <Text
+                    style={{
+                      color: 'white',
+                      textAlign: 'center',
+                      alignContent: 'center',
+                      marginTop: 5,
+                      fontSize: 15,
+                    }}>
+                    40.00
+                  </Text>
+                  <Text
+                    style={{
+                      color: 'white',
+                      textAlign: 'center',
+                      alignContent: 'center',
+                      marginTop: 5,
+                      fontSize: 15,
+                    }}>
+                    1200.00
+                  </Text>
                 </View>
               </View>
               <View style={styles.totalSection}>
-                <Text style={{color: 'white', textAlign: 'center' , alignContent: 'center', marginTop: 5, fontSize: 15,}}>Total</Text>
-                <Text style={{color: 'white', textAlign: 'center' , alignContent: 'center', marginTop: 5, fontSize: 15,}}>1260.00</Text>
+                <Text
+                  style={{
+                    color: 'white',
+                    textAlign: 'center',
+                    alignContent: 'center',
+                    marginTop: 5,
+                    fontSize: 15,
+                  }}>
+                  Total
+                </Text>
+                <Text
+                  style={{
+                    color: 'white',
+                    textAlign: 'center',
+                    alignContent: 'center',
+                    marginTop: 5,
+                    fontSize: 15,
+                  }}>
+                  1260.00
+                </Text>
               </View>
             </View>
             <View style={styles.paythorugh}>
-              <Text style={{color: 'white', textAlign: 'center' , alignContent: 'center', fontSize: 25,}}>Pay Through</Text>
+              <Text
+                style={{
+                  color: 'white',
+                  textAlign: 'center',
+                  alignContent: 'center',
+                  fontSize: 25,
+                }}>
+                Pay Through
+              </Text>
               <View style={styles.selectVehiclButtonContainer}>
-              <TouchableOpacity>
-                <Text style={styles.selectVehicleButtonStyleonClick }>
-                  Cash
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Text style={styles.selectVehicleButtonStyleonClick}>
-                  Online Payment
-                </Text>
-              </TouchableOpacity>
-            </View>
+                <TouchableOpacity>
+                  <Text style={styles.selectVehicleButtonStyleonClick}>
+                    Cash
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  <Text style={styles.selectVehicleButtonStyleonClick}>
+                    Online Payment
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </ScrollView>
-            <View style={styles.bottomView}>
-              <TouchableOpacity>
-                <Image  
-                  source={require('../assets/2-01.png')}
-                  style={styles.bottomIconStyle}
-                />
-              </TouchableOpacity>
+          <View style={styles.bottomView}>
+            <TouchableOpacity>
+              <Image
+                source={require('../assets/2-01.png')}
+                style={styles.bottomIconStyle}
+              />
+            </TouchableOpacity>
 
-              <TouchableOpacity>
-                <Image
-                  source={require('../assets/3-01.png')}
-                  style={styles.bottomIconStyle}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <Image
-                  source={require('../assets/4-01.png')}
-                  style={styles.bottomIconStyle}
-                />
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity>
+              <Image
+                source={require('../assets/3-01.png')}
+                style={styles.bottomIconStyle}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity>
+              <Image
+                source={require('../assets/4-01.png')}
+                style={styles.bottomIconStyle}
+              />
+            </TouchableOpacity>
           </View>
-      )
+        </View>
+      );
     }
   }
 }
@@ -1203,15 +1364,15 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
     alignItems: 'center',
     alignSelf: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
   },
-  
+
   jobEachContainer: {
     padding: 10,
     marginBottom: 5,
     marginRight: 5,
     backgroundColor: '#454545',
-    color: 'white'
+    color: 'white',
   },
   digitBillNoPay: {
     width: width * 0.5,
@@ -1234,7 +1395,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     width: width * 0.9,
-    backgroundColor:  '#454545',
+    backgroundColor: '#454545',
     marginBottom: 5,
     padding: 20,
   },
@@ -1246,7 +1407,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     width: width * 0.9,
-    backgroundColor:  '#454545',
+    backgroundColor: '#454545',
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
   },
