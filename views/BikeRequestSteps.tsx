@@ -15,6 +15,7 @@ import {
   getBikeDetailsList,
   getBikeProblems,
   sendNotifications,
+  getFixitStatus
 } from '../apiServices/brandsApis';
 import {BikeBrandList} from '../global/constant';
 import {errorMessage} from '../global/utils';
@@ -126,14 +127,21 @@ class BikeRequestSteps extends React.Component<
     }
     this.setState({loading: false});
   };
-  componentDidUpdate = (prevProps: any, prevState: any) => {
+  componentDidUpdate = async(prevProps: any, prevState: any) => {
     console.log(prevState.currentStepsForRequest);
+    const userObject = await AsyncStorage.getItem('userObject');
+    const userId = JSON.parse(userObject!).userId;
     if (this.state.currentStepsForRequest === 5) {
-      let timeOut = setTimeout(() => {
-        this.setState({
-          currentStepsForRequest: 6,
-        });
-      }, 2000);
+      let timeOut = setInterval(() => {
+        getFixitStatus(userId).then((response:any) => {
+          console.log(response.data);
+          if(response.data == 'true' || response.data == true){
+            this.setState({
+              currentStepsForRequest: 6,
+            });
+          }
+        })
+      }, 10000);
       // clearTimeout(timeOut);
     }
     // if (this.state.currentStepsForRequest === 5) {
@@ -942,7 +950,7 @@ class BikeRequestSteps extends React.Component<
       return <RequestMapView navigation={this.props.navigation} />;
     }
     if (!this.state.loading && this.state.currentStepsForRequest === 6) {
-      if (this.state.vehicleFetchStatus !== 'TravelToMechanic') {
+      if (this.state.vehicleFetchStatus === 'TravelToMechanic') {
         return (
           <View style={styles.container}>
             <ScrollView
