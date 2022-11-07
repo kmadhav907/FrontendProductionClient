@@ -3,6 +3,7 @@ import {
   ActivityIndicator,
   Dimensions,
   Image,
+  Modal,
   StyleSheet,
   Text,
   TextInput,
@@ -17,6 +18,9 @@ import {
   sendNotifications,
   getFixitStatus
 } from '../apiServices/brandsApis';
+import {
+  payAmount
+} from '../apiServices/paymentApis';
 import {BikeBrandList} from '../global/constant';
 import {errorMessage} from '../global/utils';
 
@@ -47,11 +51,13 @@ interface BikeRequestState {
   selectedProblems: any[];
   showBikeProblemsModal: boolean;
   mechanicStatus: any[];
+  paymentModel: boolean;
   bikeRegisterationNumber: string;
   problemDescription: string;
   vehicleFetchStatus: string;
   latitude: number | undefined;
   longitude: number | undefined;
+  payAmount: number | undefined;
 }
 
 class BikeRequestSteps extends React.Component<
@@ -71,8 +77,10 @@ class BikeRequestSteps extends React.Component<
       showBikeRequestModal: false,
       selectedRequest: '',
       bikeProblems: [],
+      payAmount: 100,
       bikeProblemsLabel: [],
       selectedProblems: [],
+      paymentModel: false,
       showBikeProblemsModal: false,
       mechanicStatus: ['Mechanic Should Come.', "I'l take bike to Mechanic."],
       bikeRegisterationNumber: '',
@@ -155,7 +163,12 @@ class BikeRequestSteps extends React.Component<
     //   clearTimeout(timeoutId);
     // }
   };
-
+  handlePaymentProcess = async() => {
+    const totalAmount = this.state.payAmount;
+    payAmount(totalAmount).then((response: any) => {
+      console.log(response.data);
+    },);
+  }
   saveLocation = async () => {
     const userObject = await AsyncStorage.getItem('userObject');
     const userId = JSON.parse(userObject!).userId;
@@ -1049,6 +1062,24 @@ class BikeRequestSteps extends React.Component<
     if (!this.state.loading && this.state.currentStepsForRequest === 7) {
       return (
         <View style={styles.container}>
+          {this.state.paymentModel && (
+            <Modal
+              animationType={"slide"}
+              transparent={true}
+              style={styles.modalView}
+              visible={this.state.paymentModel}
+              onRequestClose={() => {
+                this.setState({ paymentModel: false });
+              }}
+            >
+              <TouchableOpacity
+              onPress={() => this.handlePaymentProcess()}>
+                  <Text>
+                    Pay 100
+                  </Text>
+                </TouchableOpacity>
+            </Modal>
+          )}
           <ScrollView
             style={styles.scrollContainer}
             contentContainerStyle={{paddingBottom: 70}}>
@@ -1214,7 +1245,9 @@ class BikeRequestSteps extends React.Component<
                     Cash
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity>
+                <TouchableOpacity onPress={() => this.setState({
+                  paymentModel: true
+                })}>
                   <Text style={styles.selectVehicleButtonStyleonClick}>
                     Online Payment
                   </Text>
@@ -1326,6 +1359,12 @@ const styles = StyleSheet.create({
   listContainer: {
     alignItems: 'center',
     marginTop: 15,
+  },
+  modalView: {
+    margin: 0,
+    flex: 1,
+    // justifyContent: "flex-end",
+    alignItems: "center",
   },
   listItem: {
     marginTop: 10,
