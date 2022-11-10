@@ -140,15 +140,20 @@ class BikeRequestSteps extends React.Component<
     const userObject = await AsyncStorage.getItem('userObject');
     const userId = JSON.parse(userObject!).userId;
     if (this.state.currentStepsForRequest === 5) {
-      let timeOut = setInterval(() => {
-        getFixitStatus(userId).then((response:any) => {
-          console.log(response.data);
-          if(response.data == 'true' || response.data == true){
-            this.setState({
-              currentStepsForRequest: 6,
-            });
-          }
-        })
+      // let timeOut = setInterval(() => {
+      //   getFixitStatus(userId).then((response:any) => {
+      //     console.log(response.data);
+      //     if(response.data == 'true' || response.data == true){
+      //       this.setState({
+      //         currentStepsForRequest: 6,
+      //       });
+      //     }
+      //   })
+      // }, 10000);
+      setTimeout(() => {
+        this.setState({
+          currentStepsForRequest: 6,
+        });
       }, 10000);
       // clearTimeout(timeOut);
     }
@@ -244,7 +249,8 @@ class BikeRequestSteps extends React.Component<
     }
   };
   checkRegistrationNumber = (number: string) => {
-    return number.length === 9 || number.length === 10;
+    // return number.length === 9 || number.length === 10;
+    return true;
   };
   navigateToMapHandler = async () => {
     // console.log(this.state.currentStepsForRequest);
@@ -253,6 +259,7 @@ class BikeRequestSteps extends React.Component<
     // });
     const userObject = await AsyncStorage.getItem('userObject');
     const userId = JSON.parse(userObject!).userId;
+    console.log(userId);
     this.setState({showBikeProblemsModal: false});
     if (
       !this.state.problemDescription ||
@@ -262,7 +269,7 @@ class BikeRequestSteps extends React.Component<
       errorMessage('Fill up all the detials');
       return;
     }
-    if (this.checkRegistrationNumber(this.state.bikeRegisterationNumber)) {
+    if (!this.checkRegistrationNumber(this.state.bikeRegisterationNumber)) {
       errorMessage('Registration number is not in format');
       return;
     }
@@ -274,6 +281,7 @@ class BikeRequestSteps extends React.Component<
         this.state.bikeRegisterationNumber,
     );
 
+    console.log("kjasbkjbkjfbakjdbkjb",userId);
     console.log('Notification sent');
     sendNotifications(
       userId,
