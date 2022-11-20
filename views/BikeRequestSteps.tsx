@@ -168,11 +168,16 @@ class BikeRequestSteps extends React.Component<
     //   clearTimeout(timeoutId);
     // }
   };
-  handlePaymentProcess = async() => {
+  handlePaymentProcess = async () => {
+    console.log('This is called here')
     const totalAmount = this.state.payAmount;
-    payAmount(totalAmount).then((response: any) => {
-      console.log(response.data);
-    },);
+    payAmount(totalAmount)
+      .then((response: any) => {
+        console.log(response.data);
+      })
+      .catch(err => {
+        console.log('Err has occured', err.message);
+      });
   }
   saveLocation = async () => {
     const userObject = await AsyncStorage.getItem('userObject');
@@ -971,7 +976,7 @@ class BikeRequestSteps extends React.Component<
       return <RequestMapView navigation={this.props.navigation} />;
     }
     if (!this.state.loading && this.state.currentStepsForRequest === 6) {
-      if (this.state.vehicleFetchStatus === 'TravelToMechanic') {
+      if (this.state.vehicleFetchStatus === 'NeedMechanicToCome') {
         return (
           <View style={styles.container}>
             <ScrollView
@@ -1010,6 +1015,16 @@ class BikeRequestSteps extends React.Component<
               <Text style={styles.digitBillNoPay}>
                 Without Digital Bill do not pay
               </Text>
+              <TouchableOpacity
+                onPress={() => {
+                  this.setState({
+                    currentStepsForRequest: 7
+                  })
+                }}
+              >
+                <Text style={{borderColor: 'red' , color: 'white'}}>Next</Text>
+              </TouchableOpacity>
+
             </ScrollView>
             <View style={styles.bottomView}>
               <TouchableOpacity>
@@ -1071,22 +1086,50 @@ class BikeRequestSteps extends React.Component<
       return (
         <View style={styles.container}>
           {this.state.paymentModel && (
-            <Modal
+            <Modal  
               animationType={"slide"}
-              transparent={true}
-              style={styles.modalView}
+              transparent={true} 
               visible={this.state.paymentModel}
               onRequestClose={() => {
                 this.setState({ paymentModel: false });
-              }}
-            >
+              }} >
+            <View
+              style={{
+                width: width * 0.9,
+                backgroundColor: '#FFFFFF',
+                borderRadius: 20,
+                marginTop: 20,
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: 5,
+                height: height / 3,
+                paddingBottom: 10,
+              }}>
               <TouchableOpacity
-              onPress={() => this.handlePaymentProcess()}>
-                  <Text>
-                    Pay 100
-                  </Text>
-                </TouchableOpacity>
-            </Modal>
+                style={{
+                  backgroundColor: '#f7e520',
+                  padding: 10,
+                  width: width * 0.6,
+                  marginTop: 30,
+                }}
+                onPress={() => this.handlePaymentProcess()}
+                >
+                <Text
+                  style={{
+                    width: '100%',
+                    fontSize: 16,
+                    fontWeight: '600',
+                    lineHeight: 24,
+                    color: 'black',
+                    textAlign: 'center',
+                  }}
+                  >
+                  Pay 100
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </Modal>
+           
           )}
           <ScrollView
             style={styles.scrollContainer}
@@ -1253,9 +1296,13 @@ class BikeRequestSteps extends React.Component<
                     Cash
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => this.setState({
+                <TouchableOpacity onPress={() => {
+                  this.setState({
                   paymentModel: true
-                })}>
+                })
+
+                console.log("Thsis is clalkfnlsndlkfnsl")
+                }}>
                   <Text style={styles.selectVehicleButtonStyleonClick}>
                     Online Payment
                   </Text>
@@ -1373,6 +1420,7 @@ const styles = StyleSheet.create({
     flex: 1,
     // justifyContent: "flex-end",
     alignItems: "center",
+    backgroundColor: 'grey'
   },
   listItem: {
     marginTop: 10,
