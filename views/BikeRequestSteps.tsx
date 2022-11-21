@@ -167,12 +167,25 @@ class BikeRequestSteps extends React.Component<
     //   clearTimeout(timeoutId);
     // }
   };
+  
+  onPayClick = async (amount) => {
+    let option = {
+      currency: "INR",
+      amount: amount,
+      name: "Rahul Sharma",
+      key: 'rzp_test_cHJxXCwMNpnhwF',
+    }
+    const response = await RazorpayCheckout.open(option)
+    console.log(response);
+  }
+
   handlePaymentProcess = async () => {
     console.log('This is called here');
     const totalAmount = this.state.payAmount;
     payAmount(totalAmount)
       .then((response: any) => {
         console.log(response.data);
+        this.onPayClick(response.data.amount);
       })
       .catch(err => {
         console.log('Err has occured', err.message);
