@@ -74,19 +74,20 @@ class LoginView extends React.Component<LoginViewProps, LoginViewState> {
     }
 
     const modifiedPhoneNumber = modifyPhoneNumber(this.state.phoneNumber);
-    getOTPForAuthorization(modifiedPhoneNumber).then((response: any) => {
-      console.log(response);
-      if (response.status === 200) {
-        this.setState({
-          loading: false,
-          stepsForLogin: this.state.stepsForLogin + 1,
-          phoneNumber: modifiedPhoneNumber,
-        });
-      } else {
-        this.setState({loading: false});
-        errorMessage('Something went bad :(');
-      }
+    this.setState({
+      loading: false,
+      stepsForLogin: this.state.stepsForLogin + 1,
+      phoneNumber: modifiedPhoneNumber,
     });
+    // getOTPForAuthorization(modifiedPhoneNumber).then((response: any) => {
+    //   console.log(response);
+    //   if (response.status === 200) {
+
+    //   } else {
+    //     this.setState({loading: false});
+    //     errorMessage('Something went bad :(');
+    //   }
+    // });
   };
   handleVerifyOtp = async () => {
     if (this.state.otpToVerify.length < CELL_COUNT) {

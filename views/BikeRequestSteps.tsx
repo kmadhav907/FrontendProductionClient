@@ -16,11 +16,9 @@ import {
   getBikeDetailsList,
   getBikeProblems,
   sendNotifications,
-  getFixitStatus
+  getFixitStatus,
 } from '../apiServices/brandsApis';
-import {
-  payAmount
-} from '../apiServices/paymentApis';
+import {payAmount} from '../apiServices/paymentApis';
 import {BikeBrandList} from '../global/constant';
 import {errorMessage} from '../global/utils';
 
@@ -32,6 +30,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import {saveLocation} from '../apiServices/locationApi';
 import {RadioGroup, RadioButton} from 'react-native-flexi-radio-button';
 import RequestMapView from './MapView';
+import RazorpayCheckout from 'react-native-razorpay';
 
 interface BikeRequestProps {
   navigation: any;
@@ -135,7 +134,7 @@ class BikeRequestSteps extends React.Component<
     }
     this.setState({loading: false});
   };
-  componentDidUpdate = async(prevProps: any, prevState: any) => {
+  componentDidUpdate = async (prevProps: any, prevState: any) => {
     console.log(prevState.currentStepsForRequest);
     const userObject = await AsyncStorage.getItem('userObject');
     const userId = JSON.parse(userObject!).userId;
@@ -169,7 +168,7 @@ class BikeRequestSteps extends React.Component<
     // }
   };
   handlePaymentProcess = async () => {
-    console.log('This is called here')
+    console.log('This is called here');
     const totalAmount = this.state.payAmount;
     payAmount(totalAmount)
       .then((response: any) => {
@@ -178,7 +177,7 @@ class BikeRequestSteps extends React.Component<
       .catch(err => {
         console.log('Err has occured', err.message);
       });
-  }
+  };
   saveLocation = async () => {
     const userObject = await AsyncStorage.getItem('userObject');
     const userId = JSON.parse(userObject!).userId;
@@ -286,7 +285,7 @@ class BikeRequestSteps extends React.Component<
         this.state.bikeRegisterationNumber,
     );
 
-    console.log("kjasbkjbkjfbakjdbkjb",userId);
+    console.log('kjasbkjbkjfbakjdbkjb', userId);
     console.log('Notification sent');
     sendNotifications(
       userId,
@@ -1016,15 +1015,19 @@ class BikeRequestSteps extends React.Component<
                 Without Digital Bill do not pay
               </Text>
               <TouchableOpacity
+                style={{
+                  alignSelf: 'center',
+                  padding: 10,
+                  backgroundColor: 'yellow',
+                  marginTop: 10,
+                }}
                 onPress={() => {
                   this.setState({
-                    currentStepsForRequest: 7
-                  })
-                }}
-              >
-                <Text style={{borderColor: 'red' , color: 'white'}}>Next</Text>
+                    currentStepsForRequest: 7,
+                  });
+                }}>
+                <Text style={{borderColor: 'red', color: 'black'}}>Next</Text>
               </TouchableOpacity>
-
             </ScrollView>
             <View style={styles.bottomView}>
               <TouchableOpacity>
@@ -1086,50 +1089,46 @@ class BikeRequestSteps extends React.Component<
       return (
         <View style={styles.container}>
           {this.state.paymentModel && (
-            <Modal  
-              animationType={"slide"}
-              transparent={true} 
+            <Modal
+              animationType={'slide'}
+              transparent={true}
               visible={this.state.paymentModel}
               onRequestClose={() => {
-                this.setState({ paymentModel: false });
-              }} >
-            <View
-              style={{
-                width: width * 0.9,
-                backgroundColor: '#FFFFFF',
-                borderRadius: 20,
-                marginTop: 20,
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: 5,
-                height: height / 3,
-                paddingBottom: 10,
+                this.setState({paymentModel: false});
               }}>
-              <TouchableOpacity
+              <View
                 style={{
-                  backgroundColor: '#f7e520',
-                  padding: 10,
-                  width: width * 0.6,
-                  marginTop: 30,
-                }}
-                onPress={() => this.handlePaymentProcess()}
-                >
-                <Text
+                  width: width,
+                  backgroundColor: '#FFFFFF',
+                  borderRadius: 20,
+                  marginTop: 20,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  padding: 5,
+                  height: height / 3,
+                  paddingBottom: 10,
+                }}>
+                <TouchableOpacity
                   style={{
-                    width: '100%',
-                    fontSize: 16,
-                    fontWeight: '600',
-                    lineHeight: 24,
-                    color: 'black',
-                    textAlign: 'center',
+                    backgroundColor: '#f7e520',
+                    padding: 10,
+                    marginTop: 30,
                   }}
-                  >
-                  Pay 100
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </Modal>
-           
+                  onPress={() => this.handlePaymentProcess()}>
+                  <Text
+                    style={{
+                      width: '100%',
+                      fontSize: 16,
+                      fontWeight: '600',
+                      lineHeight: 24,
+                      color: 'black',
+                      textAlign: 'center',
+                    }}>
+                    Pay 100
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </Modal>
           )}
           <ScrollView
             style={styles.scrollContainer}
@@ -1296,13 +1295,14 @@ class BikeRequestSteps extends React.Component<
                     Cash
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={() => {
-                  this.setState({
-                  paymentModel: true
-                })
+                <TouchableOpacity
+                  onPress={() => {
+                    this.setState({
+                      paymentModel: true,
+                    });
 
-                console.log("Thsis is clalkfnlsndlkfnsl")
-                }}>
+                    console.log('Thsis is clalkfnlsndlkfnsl');
+                  }}>
                   <Text style={styles.selectVehicleButtonStyleonClick}>
                     Online Payment
                   </Text>
@@ -1419,8 +1419,8 @@ const styles = StyleSheet.create({
     margin: 0,
     flex: 1,
     // justifyContent: "flex-end",
-    alignItems: "center",
-    backgroundColor: 'grey'
+    alignItems: 'center',
+    backgroundColor: 'grey',
   },
   listItem: {
     marginTop: 10,
