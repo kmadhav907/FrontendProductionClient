@@ -16,13 +16,11 @@ import {
   getBikeDetailsList,
   getBikeProblems,
   sendNotifications,
-  getFixitStatus,
 } from '../apiServices/brandsApis';
 import {payAmount} from '../apiServices/paymentApis';
 import {BikeBrandList} from '../global/constant';
 import {errorMessage} from '../global/utils';
 
-import {CommonActions} from '@react-navigation/native';
 import BouncyCheckbox from 'react-native-bouncy-checkbox';
 import {requestLocationPermission} from '../global/utils';
 import Geolocation from 'react-native-geolocation-service';
@@ -89,6 +87,7 @@ class BikeRequestSteps extends React.Component<
       longitude: undefined,
     };
   }
+
   componentDidMount = async () => {
     this.setState({loading: true});
     try {
@@ -154,30 +153,19 @@ class BikeRequestSteps extends React.Component<
           currentStepsForRequest: 6,
         });
       }, 10000);
-      // clearTimeout(timeOut);
     }
-    // if (this.state.currentStepsForRequest === 5) {
-    //   timeoutId = setTimeout(() => {
-    //     this.setState({
-    //       currentStepsForRequest: this.state.currentStepsForRequest + 1,
-    //     });
-    //   }, 5000);
-    // }
-    // if (this.state.currentStepsForRequest === 6) {
-    //   clearTimeout(timeoutId);
-    // }
   };
-  
-  onPayClick = async (amount) => {
+
+  onPayClick = async amount => {
     let option = {
-      currency: "INR",
+      currency: 'INR',
       amount: amount,
-      name: "Rahul Sharma",
+      name: 'Rahul Sharma',
       key: 'rzp_test_cHJxXCwMNpnhwF',
-    }
-    const response = await RazorpayCheckout.open(option)
+    };
+    const response = await RazorpayCheckout.open(option);
     console.log(response);
-  }
+  };
 
   handlePaymentProcess = async () => {
     console.log('This is called here');
@@ -202,12 +190,6 @@ class BikeRequestSteps extends React.Component<
       },
     );
   };
-  // getBikeBrands()
-  //     .then((response: any) => {
-  //         console.log(response.data);
-  //         this.setState({ bikeBrands: response.data });
-  //     })
-  //     .catch(err => errorMessage('Something went wrong'));
 
   getVariousBikeDetails = async (bike: any) => {
     console.log(bike);
@@ -219,9 +201,6 @@ class BikeRequestSteps extends React.Component<
       .catch(err => {
         console.log('err is get bike', err);
       });
-    //     console.log(response.data);
-    //     this.setState({ bikeList: items, currentStepsForRequest: this.state.currentStepsForRequest + 1, searchKeyWord: "" })
-    // })
     this.setState({
       selectedBikeBrand: bike,
       bikeList: this.state.bikeBrands[bike],
@@ -270,10 +249,6 @@ class BikeRequestSteps extends React.Component<
     return true;
   };
   navigateToMapHandler = async () => {
-    // console.log(this.state.currentStepsForRequest);
-    // this.setState({
-    //   currentStepsForRequest: this.state.currentStepsForRequest + 1,
-    // });
     const userObject = await AsyncStorage.getItem('userObject');
     const userId = JSON.parse(userObject!).userId;
     console.log(userId);
@@ -327,12 +302,6 @@ class BikeRequestSteps extends React.Component<
           this.setState({
             currentStepsForRequest: this.state.currentStepsForRequest + 1,
           });
-          // this.props.navigation.dispatch(
-          //   CommonActions.reset({
-          //     index: 1,
-          //     routes: [{name: 'MapView'}],
-          //   }),
-          // );
         } else {
           throw Error('Something went wrong');
         }
@@ -388,7 +357,6 @@ class BikeRequestSteps extends React.Component<
                 <TextInput
                   style={styles.input}
                   placeholder="Search"
-                  // onChangeText={(searchString) => {this.setState({searchString})}}
                   underlineColorAndroid="transparent"
                   placeholderTextColor={'#ddd'}
                   onChangeText={(searchString: string) => {
@@ -495,7 +463,6 @@ class BikeRequestSteps extends React.Component<
               <TextInput
                 style={styles.input}
                 placeholder="Search"
-                // onChangeText={(searchString) => {this.setState({searchString})}}
                 underlineColorAndroid="transparent"
                 placeholderTextColor={'#ddd'}
                 onChangeText={(searchString: string) => {
@@ -1427,13 +1394,6 @@ const styles = StyleSheet.create({
   listContainer: {
     alignItems: 'center',
     marginTop: 15,
-  },
-  modalView: {
-    margin: 0,
-    flex: 1,
-    // justifyContent: "flex-end",
-    alignItems: 'center',
-    backgroundColor: 'grey',
   },
   listItem: {
     marginTop: 10,
